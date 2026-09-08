@@ -489,6 +489,112 @@ def scene_triage(d, t, raw):
         sy += 58
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 07 · llm-serving-unit-economics — the measurement space, in 3D
+#
+# This repo has NOT measured anything yet: "build complete, nothing measured
+# yet (week 1 of 6)", and its README states that every number in it is absent
+# rather than estimated. So this card draws the *design* — the three axes it
+# will measure on and the three workload profiles it will run — and leaves the
+# slots visibly empty. Inventing a cost curve here would be the one thing the
+# repo explicitly refuses to do.
+# ═════════════════════════════════════════════════════════════════════════
+def _box_edges(cx, cy, cz, sx, sy, sz):
+    """The 12 edges of an axis-aligned box, as pairs of 3D vertices."""
+    xs, ys, zs = (cx - sx / 2, cx + sx / 2), (cy - sy / 2, cy + sy / 2), \
+                 (cz - sz / 2, cz + sz / 2)
+    v = [(x, y, z) for x in xs for y in ys for z in zs]
+    out = []
+    for i in range(8):
+        for bit in (1, 2, 4):
+            j = i ^ bit
+            if j > i:
+                out.append((v[i], v[j]))
+    return out
+
+
+def _project(p, ang, tilt, cx, cy, scale):
+    x, y, z = p
+    ca, sa = math.cos(ang), math.sin(ang)
+    x2, z2 = x * ca - z * sa, x * sa + z * ca
+    ct, st = math.cos(tilt), math.sin(tilt)
+    y2, z3 = y * ct - z2 * st, y * st + z2 * ct
+    return cx + x2 * scale, cy - y2 * scale, z3
+
+
+def scene_serving(d, t, raw):
+    f_lab = font(F_MONO, 9)
+    f_h = font(F_MONO_B, 10)
+    f_k = font(F_MONO, 9)
+
+    # Sway, don't spin. A full revolution would pass through face-on
+    # orientations where a box collapses to a flat rectangle; an oscillation
+    # about a three-quarter view keeps it reading as a solid the whole loop.
+    ang = math.radians(34) + math.radians(15) * math.sin(raw * 2 * math.pi)
+    tilt = math.radians(26)
+    cx, cy, scale = 186, 190, 168
+
+    def pr(p):
+        return _project(p, ang, tilt, cx, cy, scale)
+
+    # The measurement space itself.
+    for a, b in _box_edges(0, 0, 0, 1.10, 0.86, 0.86):
+        x0, y0, d0 = pr(a)
+        x1, y1, d1 = pr(b)
+        sh = int(40 + 46 * ((d0 + d1) / 2 + 0.6))
+        d.line([S(x0), S(y0), S(x1), S(y1)], fill=(sh, sh + 3, sh + 8), width=S(1))
+
+    # Three axes out of the front-bottom-left corner, one per dimension.
+    org = (-0.55, -0.43, 0.43)
+    axes = [((0.55, -0.43, 0.43), BLOOD),        # cost
+            ((-0.55, 0.43, 0.43), BONE),         # quality
+            ((-0.55, -0.43, -0.43), (120, 128, 140))]  # latency
+    ox, oy, _ = pr(org)
+    for end, col in axes:
+        ex, ey, _ = pr(end)
+        d.line([S(ox), S(oy), S(ex), S(ey)], fill=col, width=S(2))
+        d.ellipse([S(ex - 3), S(ey - 3), S(ex + 3), S(ey + 3)], fill=col)
+
+    # Three empty slots — one per workload profile, nothing measured in them.
+    pulse = 0.5 + 0.5 * math.sin(raw * 2 * math.pi)
+    for i, xoff in enumerate((-0.30, 0.0, 0.30)):
+        lit = int(52 + 40 * pulse)
+        for a, b in _box_edges(xoff, -0.02, 0.0, 0.20, 0.20, 0.20):
+            x0, y0, _ = pr(a)
+            x1, y1, _ = pr(b)
+            d.line([S(x0), S(y0), S(x1), S(y1)], fill=(lit, lit, lit), width=S(1))
+
+    # Right panel — only facts the repo actually states.
+    px = 372
+    d.line([S(px - 20), S(96), S(px - 20), S(286)], fill=EDGE, width=S(1))
+
+    tracked(d, (S(px), S(100)), "MEASURING", f_h, SMOKE, 1.6)
+    rows = [("cost", "$ / 1M tokens", BLOOD),
+            ("quality", "macro F1", BONE),
+            ("latency", "p95 ms", (120, 128, 140))]
+    y = 122
+    for name, unit, col in rows:
+        d.rectangle([S(px), S(y + 3), S(px + 10), S(y + 6)], fill=col)
+        d.text((S(px + 18), S(y - 2)), name, font=f_lab, fill=SMOKE)
+        d.text((S(px + 76), S(y - 2)), unit, font=f_lab, fill=ASH)
+        y += 18
+
+    d.line([S(px), S(184), S(px + 214), S(184)], fill=EDGE, width=S(1))
+    tracked(d, (S(px), S(194)), "WORKLOAD PROFILES", f_h, SMOKE, 1.6)
+    profs = [("short", "606 ch", "48 tok"),
+             ("long_in", "7,177 ch", "48 tok"),
+             ("long_out", "446 ch", "768 tok")]
+    y = 216
+    for name, inp, out in profs:
+        d.text((S(px), S(y)), name, font=f_lab, fill=BONE)
+        d.text((S(px + 64), S(y)), inp, font=f_lab, fill=ASH)
+        d.text((S(px + 130), S(y)), "→ " + out, font=f_lab, fill=ASH)
+        y += 17
+
+    if t > 0.4:
+        tracked(d, (S(px), S(276)), "WEEK 1 OF 6 · NO DATA YET", f_h, BLOOD, 1.4)
+
+
 CARDS = [
     ("gst-eval-harness", scene_gst_eval, "01", "gst-eval-harness",
      "slab accuracy across 5 identical runs · same prompt, same model"),
@@ -502,6 +608,8 @@ CARDS = [
      "3,175 test images · research prototype, not a medical device"),
     ("smart-healthcare-triage", scene_triage, "06", "smart-healthcare-triage",
      "symptom text → urgency, offline · follow-ups can escalate"),
+    ("llm-serving-unit-economics", scene_serving, "07", "llm-serving-unit-economics",
+     "every number in this repo is absent rather than estimated"),
 ]
 
 if __name__ == "__main__":

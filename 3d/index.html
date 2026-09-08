@@ -1125,6 +1125,21 @@ const PROJECTS = [
            covering the safety overrides.`,
     tech: ['Python 3.11', 'FastAPI', 'spaCy', 'SQLite', 'Gemini API', 'PWA'],
   },
+  {
+    name: 'llm-serving-unit-economics', tag: 'Serving · in progress',
+    findLabel: 'Status.',
+    alt: 'A 3D measurement space — cost, quality and latency axes around three empty workload slots',
+    desc: `Serving an open-weight LLM on vLLM and Kubernetes, benchmarked against a paid
+           API on the same GST classification task as 01. Three dimensions — latency,
+           quality, cost — pointed at one question: above what request volume does
+           self-hosting actually win?`,
+    find: `Week 1 of 6 — build complete, nothing measured yet. The diagram is the
+           measurement design, not results: the repo's rule is that every number in it
+           is absent rather than estimated. Defined so far — three workload profiles,
+           606 / 7,177 / 446 char prompts against 48 / 48 / 768 token caps, on an
+           RTX 5070 Ti with 12,227 MiB.`,
+    tech: ['vLLM', 'Kubernetes', 'Prometheus', 'Grafana', 'Podman', 'pytest'],
+  },
 ];
 
 const EARLIER = [
@@ -1146,7 +1161,7 @@ function initBuilt() {
         <p class="n">${String(i + 1).padStart(2, '0')} &nbsp;·&nbsp; ${p.tag}</p>
         <h3><a href="${REPO}${p.name}">${p.name}</a></h3>
         <p class="desc">${p.desc}</p>
-        <p class="find"><b>The finding.</b> ${p.find}</p>
+        <p class="find"><b>${p.findLabel || 'The finding.'}</b> ${p.find}</p>
         <ul class="chips">${p.tech.map((t) => `<li>${t}</li>`).join('')}</ul>
       </div>
     </article>`).join('');
