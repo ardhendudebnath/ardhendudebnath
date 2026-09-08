@@ -359,20 +359,23 @@ def build_plates():
 
 
 # ── 4. the portrait, graded into the ink world ───────────────────────────
-# Crops are fractions of the source frame, tuned to the existing profile
-# photo (2250x3001 selfie, head upper-centre). Swap the photo and these are
-# the two lines to re-tune.
+# The source photo deliberately lives OUTSIDE the repo, so the raw snapshot is
+# never published — only the graded derivatives below are committed.
+# Crops are fractions of the source frame, tuned to face.jpg (1080x1920,
+# library selfie, head upper-centre). Swap the photo and these are the two
+# lines to re-tune.
 PORTRAIT_SRC = [
-    os.path.join(ROOT, "assets", "img", "profile.JPG"),                     # after merge
-    os.path.join(ROOT, "ardhendudebnath", "assets", "img", "profile.JPG"),  # the clone
+    os.path.join(ROOT, "assets", "img", "face.jpg"),
+    os.path.join(ROOT, "ardhendudebnath", "assets", "img", "face.jpg"),
 ]
-CARD_CROP = (0.161, 0.033, 0.872, 0.700)     # 4:5, head and shoulders
-AVATAR_CROP = (0.128, 0.033, 0.906, 0.616)   # 1:1, hair to below the chin
+CARD_CROP = (0.1963, 0.3333, 0.8778, 0.8125)   # 4:5, head and shoulders
+AVATAR_CROP = (0.2426, 0.3438, 0.8352, 0.6771) # 1:1, hair to below the chin
 
 
 def portrait_depth(img, width=512):
     """Centrality-dominant depth. The subject is the middle of a portrait —
-    the restaurant behind him is not, and this is what darkens it away."""
+    the library and its poster behind him are not, and this is what darkens
+    them away without any masking by hand."""
     g = ImageOps.grayscale(img)
     w, h = g.size
     sw = width
@@ -385,8 +388,13 @@ def portrait_depth(img, width=512):
                 ((yy - sh * 0.42) / (sh * 0.50)) ** 2)
     central = np.clip(1.0 - r, 0, 1)
 
-    d = norm(0.70 * central + 0.30 * detail)
-    return norm(blur(dilate(d, 15), 10))
+    # Detail carries half the weight: the wall and the poster behind him are
+    # smooth, hair and skin are not. Centrality alone cannot separate a bright
+    # wall that sits right beside the head.
+    d = norm(0.50 * central + 0.50 * detail)
+    # Blurred hard: any visible edge in this map reads as a spotlight oval
+    # cut around the head rather than as depth.
+    return norm(blur(dilate(d, 15), 22))
 
 
 def ink_portrait(crop, size):
@@ -405,10 +413,10 @@ def ink_portrait(crop, size):
                    .resize((out_w, out_h), Image.LANCZOS), np.float32) / 255.0
 
     # S-curve, then let depth pull the background down to near-black.
-    lum = np.clip((a - 0.5) * 1.38 + 0.47, 0, 1)
-    keep = np.clip((d - 0.30) / 0.32, 0, 1)
+    lum = np.clip((a - 0.5) * 1.38 + 0.49, 0, 1)
+    keep = np.clip((d - 0.20) / 0.50, 0, 1)             # wide ramp, no hard rim
     keep = keep * keep * (3 - 2 * keep)                 # smoothstep
-    lum = lum * (0.05 + 0.95 * keep)
+    lum = lum * (0.07 + 0.93 * keep)
 
     yy, xx = np.mgrid[0:out_h, 0:out_w].astype(np.float32)
     nx = (xx / out_w - 0.5) * 2.0
