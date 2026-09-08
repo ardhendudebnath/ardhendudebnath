@@ -136,6 +136,26 @@ Symptom-based triage assistant. Describe symptoms in English, Hindi or Bengali; 
 
 ---
 
+## `07` · llm-serving-unit-economics
+
+![A 3D measurement space — cost, quality and latency axes around three empty workload slots](3d/assets/cards/llm-serving-unit-economics.webp)
+
+Serving an open-weight LLM on vLLM and Kubernetes, benchmarked against a paid API on the same GST classification task as `01`. Three dimensions — latency, quality, cost — pointed at one question: above what request volume does self-hosting actually win?
+
+**Status: week 1 of 6. Build complete, nothing measured yet.** The diagram above is the measurement *design*, not results — the repo's standing rule is that every number in it is **absent rather than estimated**, and those three slots stay empty until a run fills them. Defined so far: three workload profiles — `short` (606-char median prompt → 48 tokens), `long_in` (7,177 → 48), `long_out` (446 → 768) — on an RTX 5070 Ti Laptop with 12,227 MiB. Cost counts GPU rental at dated market rates and excludes engineering time, on-call, redundancy and idle capacity.
+
+![vLLM](https://img.shields.io/badge/vLLM-16191e?style=flat-square)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-16191e?style=flat-square&logo=kubernetes&logoColor=eae7e0)
+![Prometheus](https://img.shields.io/badge/Prometheus-16191e?style=flat-square&logo=prometheus&logoColor=eae7e0)
+![Grafana](https://img.shields.io/badge/Grafana-16191e?style=flat-square&logo=grafana&logoColor=eae7e0)
+![Podman](https://img.shields.io/badge/Podman-16191e?style=flat-square&logo=podman&logoColor=eae7e0)
+![Python](https://img.shields.io/badge/Python-16191e?style=flat-square&logo=python&logoColor=eae7e0)
+![pytest](https://img.shields.io/badge/pytest-16191e?style=flat-square&logo=pytest&logoColor=eae7e0)
+
+**[→ llm-serving-unit-economics](https://github.com/ardhendudebnath/llm-serving-unit-economics)**
+
+---
+
 ## Earlier work
 
 | Repo | What | Year |
