@@ -1,0 +1,6 @@
+﻿# local preview config
+.claude/
+
+# python
+__pycache__/
+*.pyc

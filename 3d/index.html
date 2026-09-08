@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ardhendudebnath — ink &amp; depth</title>
+<meta name="description" content="Ardhendu Debnath — machine learning engineer. A 3D ink-relief profile.">
+<meta name="theme-color" content="#07080a">
+<meta property="og:title" content="ardhendudebnath">
+<meta property="og:description" content="Machine learning engineer. Ink and depth.">
+<meta property="og:image" content="assets/hero.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   INK & DEPTH — a 3D theme
+   Palette is bone-on-void with a single blood accent, so the
+   artwork stays the only thing with real tonal range.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --void:#07080a;
+  --ink:#0d0f13;
+  --char:#171a20;
+  --edge:#252a32;
+  --ash:#6d747e;
+  --smoke:#a8aeb8;
+  --bone:#eae7e0;
+  --blood:#cc2936;
+  --blood-dim:#7d1a23;
+
+  --display:'Anton','Arial Narrow',Impact,'Haettenschweiler',sans-serif;
+  --body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Consolas,monospace;
+
+  --gut:clamp(20px,5vw,72px);
+  --depth:1400px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+body{
+  margin:0;
+  background:var(--void);
+  color:var(--bone);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* Print texture: halftone lines + film grain, fixed over everything. */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:60;
+  pointer-events:none;
+  background-image:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.26) 0px,
+    rgba(0,0,0,.26) 1px,
+    transparent 1px,
+    transparent 3px);
+  mix-blend-mode:multiply;
+  opacity:.5;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:-50%;
+  z-index:61;
+  pointer-events:none;
+  opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 900ms steps(3) infinite;
+}
+@keyframes grain{
+  0%{transform:translate(0,0)}
+  33%{transform:translate(-3%,2%)}
+  66%{transform:translate(2%,-3%)}
+  100%{transform:translate(0,0)}
+}
+@media (prefers-reduced-motion:reduce){body::after{animation:none}}
+
+::selection{background:var(--blood);color:var(--bone)}
+
+/* ── Type ───────────────────────────────────────────────────── */
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:.01em;margin:0;line-height:.92}
+.kicker{
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  color:var(--ash);
+}
+.kicker b{color:var(--blood);font-weight:700}
+
+/* Extruded 3D lettering — stacked shadows build the side wall,
+   the wrapper supplies the perspective. */
+.extrude{
+  --ex:14px;
+  color:var(--bone);
+  text-shadow:
+    1px 1px 0 #b9b5ad, 2px 2px 0 #8e8b84, 3px 3px 0 #6b6963,
+    4px 4px 0 #4e4c48, 5px 5px 0 #3a3936, 6px 6px 0 #2c2b29,
+    7px 7px 0 #212120, 8px 8px 0 #1a1a19, 9px 9px 0 #141414,
+    10px 10px 0 #101010, 11px 11px 0 #0c0c0c, 12px 12px 0 #090909,
+    13px 13px 0 #070707, 14px 14px 22px rgba(0,0,0,.85);
+}
+/* shallower extrusion for section headings */
+.extrude-sm{
+  text-shadow:
+    1px 1px 0 #b9b5ad, 2px 2px 0 #85827c, 3px 3px 0 #5d5b56,
+    4px 4px 0 #403f3c, 5px 5px 0 #2c2b29, 6px 6px 0 #1d1d1b,
+    7px 7px 0 #121211, 8px 8px 14px rgba(0,0,0,.8);
+}
+.extrude-blood{
+  text-shadow:
+    1px 1px 0 var(--blood-dim), 2px 2px 0 #6d161e, 3px 3px 0 #5c1219,
+    4px 4px 0 #4a0f14, 5px 5px 0 #3a0c10, 6px 6px 0 #2c090c,
+    7px 7px 0 #200709, 8px 8px 0 #170507, 9px 9px 0 #100405,
+    10px 10px 18px rgba(204,41,54,.28);
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.wrap{max-width:1240px;margin:0 auto;padding:0 var(--gut)}
+
+section{position:relative;padding:clamp(80px,12vh,160px) 0}
+.sec-head{margin-bottom:clamp(32px,5vh,54px)}
+.sec-head .kicker{margin:0 0 15px}
+.title-row{display:flex;align-items:center;gap:clamp(16px,3vw,34px)}
+.title-row h2{font-size:clamp(2.2rem,7vw,4.4rem);text-transform:uppercase}
+.rule{flex:1;height:1px;background:linear-gradient(90deg,var(--edge),transparent);min-width:40px}
+
+/* ── Hero ───────────────────────────────────────────────────── */
+.hero{
+  position:relative;
+  height:100svh;
+  min-height:560px;
+  padding:0;
+  display:grid;
+  place-items:end start;
+  overflow:hidden;
+}
+.hero canvas,.hero .fallback{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.hero .fallback{filter:grayscale(1) contrast(1.15) brightness(.7)}
+/* Weighted to the lower left so the type has a dark bed to sit on and
+   the figure's lit side stays readable. */
+.hero-veil{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(78% 62% at 20% 88%,rgba(7,8,10,.94) 0%,rgba(7,8,10,.55) 46%,transparent 72%),
+    radial-gradient(130% 100% at 56% 40%,transparent 32%,rgba(7,8,10,.6) 80%,var(--void) 100%),
+    linear-gradient(180deg,rgba(7,8,10,.6) 0%,transparent 22%,transparent 48%,rgba(7,8,10,.86) 90%,var(--void) 100%);
+  pointer-events:none;
+}
+.hero-inner{
+  position:relative;
+  z-index:5;
+  width:100%;
+  text-align:left;
+  padding:0 var(--gut) clamp(74px,11vh,124px);
+  perspective:var(--depth);
+  pointer-events:none;
+}
+#nameplate{
+  transform-style:preserve-3d;
+  will-change:transform;
+  transition:transform .12s cubic-bezier(.2,.8,.3,1);
+}
+.hero h1{
+  font-size:clamp(2.4rem,9.4vw,7.8rem);
+  letter-spacing:-.005em;
+  text-transform:uppercase;
+}
+.hero h1 .ln{display:block}
+.hero .role{
+  margin:clamp(20px,3vh,32px) 0 0;
+  font-family:var(--mono);
+  font-size:clamp(.62rem,1.35vw,.82rem);
+  letter-spacing:.38em;
+  text-transform:uppercase;
+  color:var(--bone);
+  opacity:.88;
+  text-shadow:0 2px 14px rgba(0,0,0,.95);
+  transform:translateZ(60px);
+}
+.hero .role span{color:var(--blood);opacity:1}
+
+.scroll-cue{
+  position:absolute;
+  bottom:26px;right:var(--gut);
+  z-index:6;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.3em;color:var(--ash);
+  text-transform:uppercase;
+}
+.scroll-cue i{
+  display:block;width:1px;height:52px;
+  background:linear-gradient(180deg,var(--blood),transparent);
+  animation:drop 2.4s ease-in-out infinite;
+  transform-origin:top;
+}
+@keyframes drop{0%,100%{transform:scaleY(.25);opacity:.35}50%{transform:scaleY(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.scroll-cue i{animation:none;transform:scaleY(1)}}
+
+/* WebGL badge */
+.gl-note{
+  position:absolute;top:22px;right:var(--gut);z-index:6;
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.24em;
+  color:var(--ash);text-transform:uppercase;
+}
+.gl-note b{color:var(--blood);font-weight:700}
+
+/* ── Manifesto ──────────────────────────────────────────────── */
+.manifesto{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:clamp(28px,5vw,72px);
+  align-items:start;
+}
+@media (max-width:820px){.manifesto{grid-template-columns:1fr}}
+.manifesto p{color:var(--smoke);font-size:clamp(1rem,1.6vw,1.16rem);max-width:62ch}
+.manifesto p strong{color:var(--bone);font-weight:500}
+.portrait-card{max-width:320px;margin:0 0 30px}
+@media (max-width:820px){.portrait-card{max-width:260px}}
+.pullquote{
+  font-family:var(--display);
+  font-size:clamp(1.5rem,3.4vw,2.5rem);
+  line-height:1.02;
+  text-transform:uppercase;
+  color:var(--bone);
+  border-left:2px solid var(--blood);
+  padding-left:clamp(16px,2.4vw,28px);
+}
+.pullquote em{font-style:normal;color:var(--blood)}
+
+/* ── 3D tile grid (arsenal) ─────────────────────────────────── */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:14px;
+  perspective:var(--depth);
+}
+.tile{
+  position:relative;
+  transform-style:preserve-3d;
+  background:linear-gradient(150deg,var(--char),var(--ink));
+  border:1px solid var(--edge);
+  padding:20px 18px 18px;
+  transition:transform .45s cubic-bezier(.2,.8,.3,1),border-color .45s,box-shadow .45s;
+  will-change:transform;
+  box-shadow:0 12px 26px rgba(0,0,0,.5);
+}
+/* the extruded side wall */
+.tile::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(150deg,#0a0c0f,#050608);
+  transform:translateZ(-16px);
+  border:1px solid #000;
+  transition:transform .45s cubic-bezier(.2,.8,.3,1);
+}
+.tile:hover,.tile:focus-visible{
+  transform:rotateX(9deg) rotateY(-11deg) translateZ(24px);
+  border-color:var(--blood);
+  box-shadow:-16px 22px 44px rgba(0,0,0,.72),0 0 0 1px rgba(204,41,54,.22);
+  outline:none;
+}
+.tile:hover::before{transform:translateZ(-26px)}
+.tile .n{
+  font-family:var(--mono);font-size:.6rem;color:var(--blood);
+  letter-spacing:.2em;display:block;margin-bottom:12px;
+}
+.tile .t{
+  font-family:var(--display);font-size:1.24rem;text-transform:uppercase;
+  display:block;line-height:1;margin-bottom:8px;
+}
+.tile .s{font-size:.8rem;color:var(--ash);line-height:1.5;display:block}
+
+/* ── Projects ───────────────────────────────────────────────── */
+.projects{display:grid;gap:clamp(48px,7vw,96px);perspective:var(--depth)}
+.proj{
+  display:grid;
+  grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);
+  gap:clamp(24px,4vw,52px);
+  align-items:center;
+}
+.proj:nth-child(even) .proj-art{order:2}
+@media (max-width:860px){
+  .proj{grid-template-columns:1fr;gap:24px}
+  .proj:nth-child(even) .proj-art{order:0}
+}
+.proj-art{
+  display:block;
+  border:1px solid var(--edge);
+  background:var(--ink);
+  transform-style:preserve-3d;
+  will-change:transform;
+  box-shadow:0 18px 40px rgba(0,0,0,.6);
+  transition:transform .5s cubic-bezier(.2,.8,.3,1),border-color .5s,box-shadow .5s;
+}
+.proj-art img{display:block;width:100%;height:auto}
+.proj-art:hover{
+  border-color:var(--blood);
+  box-shadow:0 26px 60px rgba(0,0,0,.75),0 0 0 1px rgba(204,41,54,.25);
+}
+/* lean each card away from the copy it sits beside */
+.proj:nth-child(odd) .proj-art:hover{transform:rotateY(6deg) rotateX(-4deg) translateZ(26px)}
+.proj:nth-child(even) .proj-art:hover{transform:rotateY(-6deg) rotateX(-4deg) translateZ(26px)}
+
+.proj-body .n{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--blood);margin:0 0 12px;
+}
+.proj-body h3{margin:0 0 14px;line-height:1.2}
+.proj-body h3 a{
+  font-family:var(--mono);font-weight:700;font-size:clamp(1rem,2vw,1.3rem);
+  color:var(--bone);text-decoration:none;letter-spacing:-.01em;
+  overflow-wrap:anywhere;border-bottom:1px solid transparent;
+}
+.proj-body h3 a:hover{color:var(--blood);border-color:var(--blood)}
+.proj-body .desc{margin:0 0 14px;color:var(--smoke);font-size:.94rem;line-height:1.6}
+.proj-body .find{
+  margin:0 0 18px;color:var(--ash);font-size:.86rem;line-height:1.6;
+  border-left:2px solid var(--blood);padding-left:14px;
+}
+.proj-body .find b{color:var(--bone);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:0;padding:0;list-style:none}
+.chips li{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;
+  color:var(--smoke);border:1px solid var(--edge);background:var(--char);
+  padding:5px 9px;
+}
+
+/* ── Earlier work ───────────────────────────────────────────── */
+.earlier{margin-top:clamp(56px,8vw,104px);border-top:1px solid var(--edge);padding-top:32px}
+.earlier ul{list-style:none;margin:0;padding:0}
+.earlier li{
+  display:grid;
+  grid-template-columns:minmax(0,auto) minmax(0,1fr) auto;
+  gap:16px;align-items:baseline;
+  padding:11px 0;border-bottom:1px solid rgba(37,42,50,.5);
+}
+.earlier li a{
+  font-family:var(--mono);font-size:.78rem;color:var(--bone);
+  text-decoration:none;overflow-wrap:anywhere;
+}
+.earlier li a:hover{color:var(--blood)}
+.earlier li span{font-size:.8rem;color:var(--ash)}
+.earlier li em{font-family:var(--mono);font-size:.66rem;color:var(--ash);font-style:normal}
+@media (max-width:700px){
+  .earlier li{grid-template-columns:1fr auto;gap:4px 14px}
+  .earlier li span{grid-column:1/-1}
+}
+
+/* ── Relief cards (the artwork, in real 3D) ─────────────────── */
+.relief{
+  display:grid;
+  gap:clamp(22px,3vw,34px);
+  grid-template-columns:repeat(12,1fr);
+  align-items:start;      /* each plate keeps its own aspect — no dead black */
+}
+.card{
+  position:relative;
+  background:#000;
+  border:1px solid var(--edge);
+  overflow:hidden;
+  cursor:grab;
+  touch-action:pan-y;
+  filter:drop-shadow(0 26px 40px rgba(0,0,0,.72));
+}
+.card:active{cursor:grabbing}
+.card.wide{grid-column:span 7}
+.card.tall{grid-column:span 5}
+.card.full{grid-column:span 12}
+@media (max-width:820px){
+  .card.wide,.card.tall,.card.full{grid-column:span 12}
+}
+.card canvas,.card img{display:block;width:100%;height:100%;object-fit:cover}
+.card .surface{position:relative;width:100%}
+.card .meta{
+  position:absolute;left:0;right:0;bottom:0;z-index:3;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:12px;
+  padding:16px 18px;
+  background:linear-gradient(0deg,rgba(4,5,6,.92),transparent);
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--smoke);
+  pointer-events:none;
+}
+.card .meta b{color:var(--blood);font-weight:700}
+/* corner registration marks — printer's crop marks */
+.card .corner{position:absolute;width:14px;height:14px;z-index:3;pointer-events:none;opacity:.55}
+.card .corner::before,.card .corner::after{content:'';position:absolute;background:var(--bone)}
+.card .corner::before{width:100%;height:1px;top:0}
+.card .corner::after{width:1px;height:100%;left:0}
+.card .c1{top:10px;left:10px}
+.card .c2{top:10px;right:10px;transform:scaleX(-1)}
+.card .c3{bottom:10px;left:10px;transform:scaleY(-1)}
+.card .c4{bottom:10px;right:10px;transform:scale(-1)}
+
+.hint{
+  margin-top:18px;font-family:var(--mono);font-size:.64rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ash);
+}
+
+/* ── Telemetry (GitHub stat cards, in 3D frames) ────────────── */
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:18px;perspective:var(--depth);
+}
+.frame{
+  border:1px solid var(--edge);
+  background:var(--ink);
+  padding:10px;
+  transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.2,.8,.3,1),border-color .5s;
+  box-shadow:0 14px 30px rgba(0,0,0,.55);
+}
+.frame:hover{transform:rotateY(-7deg) rotateX(5deg) translateZ(20px);border-color:var(--blood)}
+.frame img{display:block;width:100%;height:auto}
+
+/* ── Links / footer ─────────────────────────────────────────── */
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+.lnk{
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--bone);text-decoration:none;
+  border:1px solid var(--edge);
+  padding:11px 17px;
+  background:var(--ink);
+  transition:transform .3s cubic-bezier(.2,.8,.3,1),border-color .3s,color .3s,box-shadow .3s;
+}
+.lnk:hover,.lnk:focus-visible{
+  transform:translate(-3px,-3px);
+  box-shadow:3px 3px 0 var(--blood);
+  border-color:var(--blood);
+  outline:none;
+}
+.lnk svg{width:14px;height:14px;fill:currentColor;flex:none}
+
+footer{
+  border-top:1px solid var(--edge);
+  padding:34px 0 46px;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ash);
+}
+footer a{color:var(--smoke);text-decoration:none;border-bottom:1px solid var(--edge)}
+footer a:hover{color:var(--blood);border-color:var(--blood)}
+
+/* tighten the tracking so the role line stays on one line on a phone */
+@media (max-width:520px){
+  .hero .role{letter-spacing:.24em}
+}
+
+/* reveal-on-scroll, depth-wise */
+.rise{opacity:0;transform:translateY(26px) translateZ(-90px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.3,1)}
+.rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .rise{opacity:1;transform:none;transition:none}
+  .tile,.frame,.lnk{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<header class="hero" id="top">
+  <canvas id="gl-hero" aria-hidden="true"></canvas>
+  <img class="fallback" id="hero-fallback" src="assets/hero.jpg" alt="Ink illustration of a figure mid-lift, dark energy tearing off the back" hidden>
+  <div class="hero-veil"></div>
+
+  <p class="gl-note"><b>◆</b> webgl depth relief</p>
+
+  <div class="hero-inner">
+    <div id="nameplate">
+      <h1>
+        <span class="ln extrude extrude-blood">ARDHENDU</span>
+        <span class="ln extrude">DEBNATH</span>
+      </h1>
+      <p class="role">machine learning <span>/</span> engineer <span>/</span> india</p>
+    </div>
+  </div>
+
+  <div class="scroll-cue"><i></i><span>scroll</span></div>
+</header>
+
+<main>
+
+<!-- ═══════════════ 01 MANIFESTO ═══════════════ -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <p class="kicker"><b>01</b> &nbsp;/&nbsp; manifesto</p>
+      <div class="title-row">
+        <h2 class="extrude extrude-sm">THE WORK</h2>
+        <span class="rule"></span>
+      </div>
+    </div>
+    <div class="manifesto">
+      <div class="rise">
+        <p><strong>B.Tech, India. I build machine learning systems and the unglamorous
+        plumbing underneath them</strong> — benchmarks, evaluation harnesses, and agents
+        that have to keep working when the inputs get messy.</p>
+        <p>Most of the recent work sits in one vertical: <strong>Indian GST</strong>.
+        Three repos that feed each other beat three unrelated demos, so the harness
+        that scores the benchmark is the same harness that scores the agent.</p>
+      </div>
+      <div class="rise">
+        <figure class="card portrait-card" data-depth-card
+                data-src="assets/portrait.jpg" data-depth="assets/portrait-depth.jpg"
+                data-ratio="1.25" data-strength="0.042">
+          <div class="surface"></div>
+          <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i>
+          <figcaption class="meta"><span>ardhendu <b>debnath</b></span></figcaption>
+        </figure>
+        <p class="pullquote">Load the bar.<br>Then <em>add weight.</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 02 BUILT ═══════════════ -->
+<section id="built">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <p class="kicker"><b>02</b> &nbsp;/&nbsp; repos</p>
+      <div class="title-row">
+        <h2 class="extrude extrude-sm">BUILT</h2>
+        <span class="rule"></span>
+      </div>
+    </div>
+    <div class="projects" id="projects"></div>
+
+    <div class="earlier rise">
+      <p class="kicker" style="margin-bottom:16px">earlier work</p>
+      <ul id="earlier-list"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ 03 ARSENAL ═══════════════ -->
+<section id="arsenal">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <p class="kicker"><b>03</b> &nbsp;/&nbsp; stack</p>
+      <div class="title-row">
+        <h2 class="extrude extrude-sm">ARSENAL</h2>
+        <span class="rule"></span>
+      </div>
+    </div>
+    <div class="grid rise" id="arsenal-grid"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ 03 RELIEF — the artwork in 3D ═══════════════ -->
+<section id="relief">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <p class="kicker"><b>04</b> &nbsp;/&nbsp; plates</p>
+      <div class="title-row">
+        <h2 class="extrude extrude-sm">DEPTH</h2>
+        <span class="rule"></span>
+      </div>
+    </div>
+
+    <div class="relief">
+      <figure class="card full rise" data-depth-card
+              data-src="assets/hero.jpg" data-depth="assets/hero-depth.jpg"
+              data-ratio="0.4166" data-strength="0.055">
+        <div class="surface"></div>
+        <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i>
+        <figcaption class="meta"><span>plate <b>i</b> &nbsp;·&nbsp; the last rep</span><span>drag to rotate</span></figcaption>
+      </figure>
+
+      <figure class="card tall rise" data-depth-card
+              data-src="assets/deadlift.jpg" data-depth="assets/deadlift-depth.jpg"
+              data-ratio="1.34" data-strength="0.05">
+        <div class="surface"></div>
+        <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i>
+        <figcaption class="meta"><span>plate <b>ii</b> &nbsp;·&nbsp; the pull</span></figcaption>
+      </figure>
+
+      <figure class="card wide rise" data-depth-card
+              data-src="assets/flex.jpg" data-depth="assets/flex-depth.jpg"
+              data-ratio="0.72" data-strength="0.055">
+        <div class="surface"></div>
+        <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i>
+        <figcaption class="meta"><span>plate <b>iii</b> &nbsp;·&nbsp; the aftermath</span></figcaption>
+      </figure>
+    </div>
+    <p class="hint">each plate is a real 3D surface — a depth map drives per-pixel parallax, not a css tilt</p>
+  </div>
+</section>
+
+<!-- ═══════════════ 04 TELEMETRY ═══════════════ -->
+<section id="telemetry">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <p class="kicker"><b>05</b> &nbsp;/&nbsp; telemetry</p>
+      <div class="title-row">
+        <h2 class="extrude extrude-sm">NUMBERS</h2>
+        <span class="rule"></span>
+      </div>
+    </div>
+    <div class="stats rise">
+      <div class="frame">
+        <img loading="lazy" alt="GitHub statistics for ardhendudebnath"
+             src="https://github-readme-stats.vercel.app/api?username=ardhendudebnath&show_icons=true&hide_border=true&bg_color=0d0f13&title_color=cc2936&text_color=a8aeb8&icon_color=eae7e0&ring_color=cc2936">
+      </div>
+      <div class="frame">
+        <img loading="lazy" alt="Most used languages"
+             src="https://github-readme-stats.vercel.app/api/top-langs/?username=ardhendudebnath&layout=compact&hide_border=true&bg_color=0d0f13&title_color=cc2936&text_color=a8aeb8">
+      </div>
+    </div>
+
+    <div class="links rise">
+      <a class="lnk" href="https://github.com/ardhendudebnath">
+        <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        github
+      </a>
+      <a class="lnk" href="mailto:ardhendud430@gmail.com">
+        <svg viewBox="0 0 16 16"><path d="M1.5 3h13A1.5 1.5 0 0 1 16 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5v-7A1.5 1.5 0 0 1 1.5 3Zm.2 1.2 6.3 4.2 6.3-4.2H1.7Z"/></svg>
+        email
+      </a>
+      <a class="lnk" href="https://www.linkedin.com/in/ardhendu-debnath-b53232211">
+        <svg viewBox="0 0 16 16"><path d="M0 1.65C0 .74.75 0 1.68 0h12.64C15.25 0 16 .74 16 1.65v12.7c0 .91-.75 1.65-1.68 1.65H1.68A1.67 1.67 0 0 1 0 14.35V1.65ZM4.94 13.4V6.17H2.54v7.23h2.4Zm-1.2-8.22c.84 0 1.36-.55 1.36-1.24-.02-.7-.52-1.24-1.34-1.24-.82 0-1.36.54-1.36 1.24 0 .69.52 1.24 1.33 1.24h.01Zm5.02 8.22V9.36c0-.22.02-.43.08-.59.17-.43.57-.88 1.24-.88.87 0 1.22.67 1.22 1.65v3.86h2.4V9.26c0-2.22-1.18-3.26-2.76-3.26-1.29 0-1.86.71-2.18 1.2v.03h-.02l.02-.03V6.17h-2.4c.03.68 0 7.23 0 7.23h2.4Z"/></svg>
+        linkedin
+      </a>
+      <a class="lnk" href="https://twitter.com/cstdebnath">
+        <svg viewBox="0 0 16 16"><path d="M12.6 0h2.45l-5.35 6.12L16 16h-4.94l-3.87-5.06L2.77 16H.32l5.72-6.54L0 0h5.06l3.5 4.63L12.6 0Zm-.86 14.53h1.36L4.32 1.4H2.87l8.87 13.13Z"/></svg>
+        x
+      </a>
+      <a class="lnk" href="https://www.hackerrank.com/profile/ardhendud430">
+        <svg viewBox="0 0 16 16"><path d="M8 0 .93 4v8L8 16l7.07-4V4L8 0Zm2.1 12.3c-.14 0-.14-.07-.14-.2V8.9H6.04v3.2H4.6c-.13 0-.2 0-.2-.14V3.9c0-.13.07-.2.2-.2h1.44v3.2h3.92V3.7h1.44c.13 0 .2.07.2.2v8.06c0 .13-.07.2-.2.2H10.1Z"/></svg>
+        hackerrank
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;width:100%">
+    <span>© <span id="yr"></span> ardhendu debnath</span>
+    <span>ink &amp; depth — hand-rolled webgl, zero dependencies</span>
+    <a href="#top">back to top ↑</a>
+  </div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+/* ═══════════════════════════════════════════════════════════════
+   Minimal mat4 — only what a single tilting quad needs.
+   ═══════════════════════════════════════════════════════════════ */
+const M4 = {
+  mul(a, b) {
+    const o = new Float32Array(16);
+    for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) {
+      o[c * 4 + r] = a[r] * b[c * 4] + a[4 + r] * b[c * 4 + 1] +
+                     a[8 + r] * b[c * 4 + 2] + a[12 + r] * b[c * 4 + 3];
+    }
+    return o;
+  },
+  perspective(fovy, aspect, near, far) {
+    const f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
+    return new Float32Array([
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far + near) * nf, -1,
+      0, 0, 2 * far * near * nf, 0,
+    ]);
+  },
+  translate(x, y, z) {
+    return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, x,y,z,1]);
+  },
+  rotX(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return new Float32Array([1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]);
+  },
+  rotY(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1]);
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   Shaders. The quad is a real 3D plane in perspective; the
+   fragment stage walks the depth map to displace the artwork
+   per-pixel, so the ink actually sits at different distances.
+   ═══════════════════════════════════════════════════════════════ */
+const VERT = `
+attribute vec2 aPos;
+uniform mat4 uMVP;
+uniform vec2 uSize;
+uniform vec3 uCamLocal;
+varying vec2 vUv;
+varying vec3 vView;
+void main(){
+  vec3 p = vec3(aPos * uSize, 0.0);
+  vUv = aPos * 0.5 + 0.5;
+  vView = uCamLocal - p;
+  gl_Position = uMVP * vec4(p, 1.0);
+}`;
+
+const FRAG = `
+precision highp float;
+varying vec2 vUv;
+varying vec3 vView;
+
+uniform sampler2D uColor;
+uniform sampler2D uDepth;
+uniform vec2  uCoverScale;
+uniform vec2  uCoverOffset;
+uniform vec2  uDrift;
+uniform float uStrength;
+uniform float uTime;
+uniform float uVignette;
+uniform float uGrain;
+uniform float uFringe;
+uniform float uBlood;
+uniform float uExposure;
+uniform float uEdge;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+
+void main(){
+  vec2 base = clamp(vUv, 0.0, 1.0) * uCoverScale + uCoverOffset;
+
+  // View direction in the plane's own space → tangent-space parallax.
+  vec3 vd = normalize(vView);
+  vec2 par = (vd.xy / max(abs(vd.z), 0.45)) * uStrength + uDrift;
+
+  // Two-step offset mapping. One refinement is enough for a smooth
+  // depth map and avoids the swimming a naive single tap gives.
+  float d = texture2D(uDepth, base).r;
+  vec2 uv1 = base + par * (d - 0.5);
+  d = mix(d, texture2D(uDepth, uv1).r, 0.85);
+  vec2 uv = base + par * (d - 0.5);
+
+  // Depth-proportional colour separation — reads like a lenticular print.
+  vec2 f = par * uFringe;
+  vec3 col = vec3(
+    texture2D(uColor, uv + f).r,
+    texture2D(uColor, uv).g,
+    texture2D(uColor, uv - f).b
+  );
+
+  // Ink grade: crush to a bone/void ramp, let a little blood into the mids.
+  float lum = dot(col, vec3(0.299, 0.587, 0.114));
+  vec3 ramp = mix(vec3(0.021, 0.024, 0.031), vec3(0.925, 0.906, 0.878),
+                  smoothstep(0.02, 0.98, lum));
+  ramp += vec3(0.075, 0.008, 0.016) * (1.0 - abs(lum * 2.0 - 1.0)) * uBlood;
+  col = mix(col, ramp, 0.72);
+
+  // Near surfaces catch more light than far ones.
+  col *= mix(0.68, 1.10, d);
+  col *= uExposure;
+
+  // Vignette + grain.
+  vec2 q = vUv - 0.5;
+  col *= 1.0 - dot(q, q) * uVignette;
+  col += (hash(gl_FragCoord.xy + fract(uTime * 0.35) * 97.0) - 0.5) * uGrain;
+
+  // Bone hairline around the plate (card mode only).
+  float e = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y));
+  col = mix(col, vec3(0.86, 0.84, 0.80), (1.0 - smoothstep(0.0, 0.0035, e)) * uEdge);
+
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+function compile(gl, type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    console.error(gl.getShaderInfoLog(s));
+    return null;
+  }
+  return s;
+}
+
+function loadTexture(gl, url) {
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  // 1px placeholder so the first frames render rather than warn.
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                new Uint8Array([16, 18, 22, 255]));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+      resolve({ tex, w: img.naturalWidth, h: img.naturalHeight });
+    };
+    img.onerror = () => reject(new Error('texture failed: ' + url));
+    img.src = url;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DepthStage — one tilting, depth-displaced plate.
+   ═══════════════════════════════════════════════════════════════ */
+class DepthStage {
+  constructor(canvas, opts) {
+    this.canvas = canvas;
+    this.o = Object.assign({
+      strength: 0.05, fringe: 0.06, blood: 0.5, exposure: 1.0,
+      vignette: 0.62, grain: 0.05, edge: 0.0,
+      maxTilt: 0.13, autoTilt: 0.028, cover: true, camZ: 3.0, fov: 34,
+    }, opts);
+
+    const gl = canvas.getContext('webgl', {
+      antialias: true, alpha: false, powerPreference: 'high-performance',
+    });
+    if (!gl) throw new Error('no webgl');
+    this.gl = gl;
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl, gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, compile(gl, gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error('link failed');
+    gl.useProgram(prog);
+    this.prog = prog;
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER,
+      new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    this.u = {};
+    for (const n of ['uMVP','uSize','uCamLocal','uColor','uDepth','uCoverScale',
+                     'uCoverOffset','uDrift','uStrength','uTime','uVignette',
+                     'uGrain','uFringe','uBlood','uExposure','uEdge']) {
+      this.u[n] = gl.getUniformLocation(prog, n);
+    }
+
+    this.tilt = { x: 0, y: 0 };
+    this.target = { x: 0, y: 0 };
+    this.imgAspect = 1;
+    this.visible = true;
+    this.ready = false;
+    this.raf = 0;
+    this.t0 = performance.now();
+  }
+
+  async load(colorUrl, depthUrl) {
+    const gl = this.gl;
+    const [c, d] = await Promise.all([
+      loadTexture(gl, colorUrl), loadTexture(gl, depthUrl),
+    ]);
+    this.imgAspect = c.w / c.h;
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, c.tex);
+    gl.uniform1i(this.u.uColor, 0);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, d.tex);
+    gl.uniform1i(this.u.uDepth, 1);
+    this.ready = true;
+    this.resize();
+    return this;
+  }
+
+  resize() {
+    const cv = this.canvas;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = cv.clientWidth || 1, h = cv.clientHeight || 1;
+    const pw = Math.round(w * dpr), ph = Math.round(h * dpr);
+    if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+    this.gl.viewport(0, 0, pw, ph);
+    this.aspect = w / h;
+
+    // Plane sized to exactly fill the frustum at z = 0.
+    const halfH = this.o.camZ * Math.tan((this.o.fov * Math.PI / 180) / 2);
+    this.size = [halfH * this.aspect, halfH];
+
+    // Cover-fit the artwork inside the plane.
+    let sx = 1, sy = 1;
+    if (this.o.cover) {
+      if (this.imgAspect > this.aspect) sx = this.aspect / this.imgAspect;
+      else sy = this.imgAspect / this.aspect;
+    }
+    this.cover = { scale: [sx, sy], offset: [(1 - sx) / 2, (1 - sy) / 2] };
+  }
+
+  setTarget(nx, ny) {          // normalised −1..1
+    const m = this.o.maxTilt;
+    this.target.y = nx * m;
+    this.target.x = -ny * m;
+  }
+
+  frame(now) {
+    if (!this.ready) return;
+    const gl = this.gl, o = this.o;
+    const t = (now - this.t0) / 1000;
+
+    // Idle breathing keeps the plate alive when the pointer is elsewhere.
+    const idleX = REDUCED ? 0 : Math.sin(t * 0.42) * o.autoTilt;
+    const idleY = REDUCED ? 0 : Math.cos(t * 0.31) * o.autoTilt;
+    const ease = REDUCED ? 1 : 0.075;
+    this.tilt.x += (this.target.x + idleX - this.tilt.x) * ease;
+    this.tilt.y += (this.target.y + idleY - this.tilt.y) * ease;
+
+    const rot = M4.mul(M4.rotY(this.tilt.y), M4.rotX(this.tilt.x));
+    const proj = M4.perspective(o.fov * Math.PI / 180, this.aspect, 0.1, 20);
+    const mvp = M4.mul(proj, M4.mul(M4.translate(0, 0, -o.camZ), rot));
+
+    // Camera in plane space = Rᵀ · camera (rotation is orthonormal).
+    const cz = o.camZ;
+    const camLocal = [rot[2] * cz, rot[6] * cz, rot[10] * cz];
+
+    gl.uniformMatrix4fv(this.u.uMVP, false, mvp);
+    gl.uniform2fv(this.u.uSize, this.size);
+    gl.uniform3fv(this.u.uCamLocal, camLocal);
+    gl.uniform2fv(this.u.uCoverScale, this.cover.scale);
+    gl.uniform2fv(this.u.uCoverOffset, this.cover.offset);
+    gl.uniform2f(this.u.uDrift, this.scrollDrift || 0, 0);
+    gl.uniform1f(this.u.uStrength, o.strength);
+    gl.uniform1f(this.u.uTime, t);
+    gl.uniform1f(this.u.uVignette, o.vignette);
+    gl.uniform1f(this.u.uGrain, o.grain);
+    gl.uniform1f(this.u.uFringe, o.fringe);
+    gl.uniform1f(this.u.uBlood, o.blood);
+    gl.uniform1f(this.u.uExposure, o.exposure);
+    gl.uniform1f(this.u.uEdge, o.edge);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Boot
+   ═══════════════════════════════════════════════════════════════ */
+const stages = [];
+
+function tick(now) {
+  for (const s of stages) if (s.visible) s.frame(now);
+  requestAnimationFrame(tick);
+}
+
+// ── Hero ─────────────────────────────────────────────────────
+async function initHero() {
+  const cv = document.getElementById('gl-hero');
+  const fb = document.getElementById('hero-fallback');
+  try {
+    const stage = new DepthStage(cv, {
+      strength: 0.052, fringe: 0.05, blood: 0.42, exposure: 1.02,
+      vignette: 0.5, grain: 0.045, maxTilt: 0.10, autoTilt: 0.022,
+    });
+    await stage.load('assets/hero.jpg', 'assets/hero-depth.jpg');
+    stages.push(stage);
+    addEventListener('resize', () => stage.resize(), { passive: true });
+
+    addEventListener('pointermove', (e) => {
+      stage.setTarget(
+        (e.clientX / innerWidth) * 2 - 1,
+        (e.clientY / innerHeight) * 2 - 1
+      );
+    }, { passive: true });
+
+    // Phones: lean on the gyroscope instead of a pointer.
+    addEventListener('deviceorientation', (e) => {
+      if (e.gamma == null) return;
+      stage.setTarget(
+        Math.max(-1, Math.min(1, e.gamma / 32)),
+        Math.max(-1, Math.min(1, ((e.beta || 45) - 45) / 32))
+      );
+    }, { passive: true });
+
+    addEventListener('scroll', () => {
+      stage.scrollDrift = Math.min(scrollY / innerHeight, 1) * 0.035;
+    }, { passive: true });
+  } catch (err) {
+    console.warn('hero webgl unavailable —', err.message);
+    cv.remove();
+    fb.hidden = false;
+  }
+}
+
+// ── Relief plates ────────────────────────────────────────────
+async function initCards() {
+  for (const fig of document.querySelectorAll('[data-depth-card]')) {
+    const surface = fig.querySelector('.surface');
+    surface.style.paddingTop = (parseFloat(fig.dataset.ratio) * 100) + '%';
+
+    const cv = document.createElement('canvas');
+    cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+    cv.setAttribute('aria-hidden', 'true');
+    surface.appendChild(cv);
+
+    try {
+      const stage = new DepthStage(cv, {
+        strength: parseFloat(fig.dataset.strength) || 0.05,
+        fringe: 0.075, blood: 0.55, exposure: 1.0,
+        vignette: 0.5, grain: 0.05, edge: 1.0,
+        maxTilt: 0.17, autoTilt: 0.03,
+      });
+      await stage.load(fig.dataset.src, fig.dataset.depth);
+      stage.visible = false;
+      stages.push(stage);
+
+      new ResizeObserver(() => stage.resize()).observe(cv);
+      new IntersectionObserver(
+        ([e]) => { stage.visible = e.isIntersecting; },
+        { rootMargin: '120px' }
+      ).observe(fig);
+
+      // Pointer anywhere over the plate steers it; leaving lets it settle.
+      fig.addEventListener('pointermove', (e) => {
+        const r = fig.getBoundingClientRect();
+        stage.setTarget(
+          ((e.clientX - r.left) / r.width) * 2 - 1,
+          ((e.clientY - r.top) / r.height) * 2 - 1
+        );
+      }, { passive: true });
+      fig.addEventListener('pointerleave', () => stage.setTarget(0, 0), { passive: true });
+    } catch (err) {
+      console.warn('plate webgl unavailable —', err.message);
+      cv.remove();
+      const img = document.createElement('img');
+      img.src = fig.dataset.src;
+      img.alt = 'Ink illustration';
+      img.loading = 'lazy';
+      img.style.cssText = 'position:absolute;inset:0';
+      surface.appendChild(img);
+    }
+  }
+}
+
+// ── Repos ────────────────────────────────────────────────────
+// Every figure in `find` is measured and reported in that repo's own README.
+const REPO = 'https://github.com/ardhendudebnath/';
+const PROJECTS = [
+  {
+    name: 'gst-eval-harness', tag: 'GST · evaluation',
+    alt: 'Slab accuracy across five identical runs: 53.6, 50.0, 53.6, 50.0, 64.3',
+    desc: `An open, hand-labelled benchmark for Indian GST rate-slab classification.
+           India's slabs changed on 22 Sep 2025 and the 12% slab was abolished — this
+           measures how often LLMs still answer from the old table.`,
+    find: `Run the same prompt against the same model five times and slab accuracy
+           swings from 50.0% to 64.3%. Self-agreement is 53.6%. An abolished slab is
+           recited somewhere in the response 11.4% of the time.`,
+    tech: ['Python 3.11', 'pypdf', 'NVIDIA NIM', 'Docker', 'GitHub Actions'],
+  },
+  {
+    name: 'gst-resilient-agent', tag: 'GST · agents',
+    alt: 'Retrieval recall at k — semantic reaches 89.3% at k=10, keyword 60.7%',
+    desc: `A multi-step agent that audits GST invoice lines against hash-pinned Gazette
+           notifications — and the chaos harness built to break it. Seven tools, a
+           hand-rolled loop, a failure taxonomy.`,
+    find: `Semantic retrieval reaches 89.3% recall@10 against keyword's 60.7% — and pays
+           715ms for it versus 9ms. Chaos injection configured at 10/25/50% actually
+           fires at 8.2/24.9/49.3%.`,
+    tech: ['Python', 'Claude Agent SDK', 'Nemotron 3', 'pypdf', 'pytest'],
+  },
+  {
+    name: 'register-aware-translation', tag: 'Indic NLP · speech',
+    alt: 'A formality dial sweeping between তুই, তুমি and আপনি',
+    desc: `Speech translation that gets the register right — তুই or আপনি, du or Sie.
+           Standard translators collapse that distinction into an arbitrary choice;
+           here it is a dial. 20 languages, works offline.`,
+    find: `100% register detection across all 20 languages, 98.5% exactness on Bengali,
+           95.3% agreement against FAME-MT over 30,281 sentences. The register layer
+           costs about 1 millisecond.`,
+    tech: ['PyTorch', 'Whisper', 'Transformers', 'Flask', 'Socket.IO', 'SQLite'],
+  },
+  {
+    name: 'symmetrynet-equivariant-gnn', tag: 'Research · GNN',
+    alt: 'A molecule rotating while the predicted HOMO-LUMO gap stays at 43.43 meV',
+    desc: `Predicting molecular properties with neural networks that are provably
+           invariant to rotation — representation theory implemented from scratch
+           rather than bolted on with data augmentation.`,
+    find: `Equivariance verified to 1.3 × 10⁻¹⁵ relative error against 1.2 × 10⁻² for a
+           naive GNN. On QM9, equivariant PaiNN hits 43.43 meV test MAE versus 56.03,
+           and its advantage widens with data — 1.16× at 11k molecules, 1.29× at 110k.`,
+    tech: ['PyTorch', 'PyTorch Geometric', 'e3nn', 'CUDA'],
+  },
+  {
+    name: 'chest-xray-classifier', tag: 'Vision · explainability',
+    alt: 'Per-class F1 — COVID19 0.982, PNEUMONIA 0.970, NORMAL 0.953, LUNG_OPACITY 0.929',
+    desc: `Four-class CNN over chest radiographs, with Grad-CAM, SHAP and a Mahalanobis
+           out-of-distribution check. Research prototype — not a medical device, not
+           clinically validated.`,
+    find: `ResNet18 reaches 0.9587 macro F1 over 3,175 test images, edging out ResNet50 —
+           the smaller backbone wins. Masking to lungs only drops it to 0.9341, which is
+           the honest number.`,
+    tech: ['PyTorch', 'torchvision', 'FastAPI', 'Grad-CAM', 'SHAP'],
+  },
+  {
+    name: 'smart-healthcare-triage', tag: 'NLP · offline',
+    alt: 'An urgency ladder escalating from SELF_CARE through URGENT_CARE to EMERGENCY',
+    desc: `Symptom-based triage assistant. Describe symptoms in English, Hindi or Bengali;
+           get an urgency class, a helpline and a specialist suggestion. Works offline and
+           audits every decision.`,
+    find: `Follow-up questions can escalate a case — triage is not a single-shot
+           classification. 79 symptoms, 487 phrases across three languages, 122 tests
+           covering the safety overrides.`,
+    tech: ['Python 3.11', 'FastAPI', 'spaCy', 'SQLite', 'Gemini API', 'PWA'],
+  },
+];
+
+const EARLIER = [
+  ['Chatbot_customer_satisfaction-project', 'Customer sentiment chatbot — NLP preprocessing, word-frequency and heatmap analysis', '2024'],
+  ['predicting_customer_churn_for_a_telecommunications_company', 'Telecom churn prediction and retention signals', '2024'],
+  ['House_price_prediction', 'Regression on housing data', '2024'],
+  ['sonar_rock-vs-mine-prediction-', 'Binary classification on sonar returns', '2024'],
+  ['Cognifyz-Internship-Project', 'Machine learning and data analysis internship work', '2025'],
+  ['Image_Classification_Project-', 'Image classification practice', '2025'],
+];
+
+function initBuilt() {
+  document.getElementById('projects').innerHTML = PROJECTS.map((p, i) => `
+    <article class="proj rise">
+      <a class="proj-art" href="${REPO}${p.name}" aria-label="${p.name} on GitHub">
+        <img src="assets/cards/${p.name}.webp" alt="${p.alt}" loading="lazy" decoding="async">
+      </a>
+      <div class="proj-body">
+        <p class="n">${String(i + 1).padStart(2, '0')} &nbsp;·&nbsp; ${p.tag}</p>
+        <h3><a href="${REPO}${p.name}">${p.name}</a></h3>
+        <p class="desc">${p.desc}</p>
+        <p class="find"><b>The finding.</b> ${p.find}</p>
+        <ul class="chips">${p.tech.map((t) => `<li>${t}</li>`).join('')}</ul>
+      </div>
+    </article>`).join('');
+
+  document.getElementById('earlier-list').innerHTML = EARLIER.map(([n, d, y]) => `
+    <li>
+      <a href="${REPO}${n}">${n}</a>
+      <span>${d}</span>
+      <em>${y}</em>
+    </li>`).join('');
+}
+
+// ── Arsenal tiles ────────────────────────────────────────────
+const ARSENAL = [
+  ['01', 'Modelling', 'PyTorch · PyTorch Geometric · e3nn · TensorFlow · scikit-learn · NumPy · Pandas'],
+  ['02', 'LLM & agents', 'Claude Agent SDK · Transformers · Whisper · spaCy · Gemini · NVIDIA NIM'],
+  ['03', 'Serving & infra', 'FastAPI · Flask · Docker · AWS · Linux · GitHub Actions'],
+  ['04', 'Data & test', 'SQLite · MySQL · MongoDB · pytest'],
+  ['05', 'Languages', 'Python · Java · C · JavaScript'],
+  ['06', 'Also', 'The hand-written WebGL on this page'],
+];
+function initArsenal() {
+  document.getElementById('arsenal-grid').innerHTML = ARSENAL.map(([n, t, s]) => `
+    <article class="tile" tabindex="0">
+      <span class="n">${n}</span>
+      <span class="t">${t}</span>
+      <span class="s">${s}</span>
+    </article>`).join('');
+}
+
+// ── Reveal on scroll ─────────────────────────────────────────
+function initReveal() {
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, { rootMargin: '-40px' });
+  document.querySelectorAll('.rise').forEach((el) => io.observe(el));
+}
+
+initBuilt();
+initArsenal();
+initReveal();
+initHero();
+initCards();
+requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
