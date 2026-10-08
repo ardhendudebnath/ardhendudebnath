@@ -711,6 +711,105 @@ def scene_house(d, t, raw):
                    fill=SMOKE if k < 2 else ASH)
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 10 · sonar_rock-vs-mine-prediction — what one small split is worth
+#
+# 208 samples means a 10% test set is 21 rows, so accuracy moves 4.76 points
+# per sample and can only land on a multiple of 1/21. Each bar below is one
+# of those attainable values, counted over 200 seeds of the same split.
+# ═════════════════════════════════════════════════════════════════════════
+SONAR_HIST = [(0.400, 0), (0.448, 2), (0.495, 0), (0.543, 0), (0.590, 14),
+              (0.638, 21), (0.686, 28), (0.733, 50), (0.781, 31), (0.828, 37),
+              (0.876, 13), (0.924, 4)]
+SONAR_BIN = 0.0476
+CV_LO, CV_HI = 0.7477, 0.7778
+
+
+def scene_sonar(d, t, raw):
+    f_lab = font(F_MONO, 9)
+    f_big = font(F_UI, 42)
+    f_h = font(F_MONO_B, 10)
+
+    lo, hi = 0.42, 1.00
+    left, right = 52, 398
+    base, top = 266, 116
+    peak = 50
+
+    def mx(a):
+        return left + (a - lo) / (hi - lo) * (right - left)
+
+    # axis ticks
+    for a in (0.5, 0.6, 0.7, 0.8, 0.9, 1.0):
+        x = mx(a)
+        d.line([S(x), S(base), S(x), S(base + 4)], fill=EDGE, width=S(1))
+        lab = f"{int(a*100)}"
+        d.text((S(x) - d.textlength(lab, font=f_lab) / 2, S(base + 9)),
+               lab, font=f_lab, fill=ASH)
+    d.line([S(left), S(base), S(right), S(base)], fill=EDGE, width=S(1))
+
+    # the cross-validated estimate: a narrow band, drawn behind the bars
+    if t > 0.45:
+        a = min((t - 0.45) / 0.3, 1.0)
+        x0, x1 = mx(CV_LO), mx(CV_HI)
+        col = tuple(int(VOID[i] + (BLOOD[i] - VOID[i]) * 0.30 * a) for i in range(3))
+        d.rectangle([S(x0), S(top - 10), S(x1), S(base)], fill=col)
+
+    # histogram of 200 single-split results
+    for i, (blo, count) in enumerate(SONAR_HIST):
+        if not count:
+            continue
+        p = stagger(t, i, len(SONAR_HIST), 0.62)
+        if p <= 0:
+            continue
+        h = (count / peak) * (base - top) * p
+        x0, x1 = mx(blo), mx(blo + SONAR_BIN)
+        d.rectangle([S(x0 + 1), S(base - h), S(x1 - 1), S(base)],
+                    fill=(78, 85, 96))
+        d.rectangle([S(x0 + 1), S(base - h), S(x1 - 1), S(base - h + 2)],
+                    fill=SMOKE)
+
+    # CV interval edges, drawn over the bars so the narrow band is the thing
+    # you actually see against the spread behind it
+    if t > 0.45:
+        x0, x1 = mx(CV_LO), mx(CV_HI)
+        for x in (x0, x1):
+            d.line([S(x), S(top - 10), S(x), S(base)], fill=BLOOD, width=S(1))
+        lab = "CV"
+        d.text((S((x0 + x1) / 2) - d.textlength(lab, font=f_lab) / 2,
+                S(top - 24)), lab, font=f_lab, fill=BLOOD)
+
+    # the full span one split can land on
+    if t > 0.75:
+        sy = top - 22
+        d.line([S(mx(0.4762)), S(sy), S(mx(0.9524)), S(sy)],
+               fill=(110, 117, 128), width=S(1))
+        for x in (mx(0.4762), mx(0.9524)):
+            d.line([S(x), S(sy - 4), S(x), S(sy + 4)],
+                   fill=(110, 117, 128), width=S(1))
+        d.text((S(mx(0.60)), S(sy - 16)), "one split lands anywhere here",
+               font=f_lab, fill=SMOKE)
+
+    d.text((S(left), S(base + 24)), "accuracy on a single 21-row test set, 200 seeds",
+           font=f_lab, fill=(70, 76, 85))
+
+    # right panel
+    px = 430
+    d.line([S(px - 20), S(96), S(px - 20), S(286)], fill=EDGE, width=S(1))
+    val = 76.3 * ease(t / 0.8)
+    d.text((S(px), S(104)), f"{val:.1f}%", font=f_big, fill=BONE)
+    d.text((S(px + 2), S(152)), "± 5.4   50-fold CV", font=f_lab, fill=ASH)
+    if t > 0.5:
+        tracked(d, (S(px), S(174)), "ONE SPLIT SAYS", f_h, BLOOD, 1.2)
+        d.text((S(px + 2), S(192)), "47.6%  to  95.2%", font=f_lab, fill=BLOOD)
+    d.line([S(px), S(214), S(px + 160), S(214)], fill=EDGE, width=S(1))
+    if t > 0.7:
+        for k, line in enumerate(["208 rows · 60 bands",
+                                  "baseline      53.4%",
+                                  "train-test gap +14.4"]):
+            d.text((S(px), S(226 + k * 17)), line, font=f_lab,
+                   fill=SMOKE if k == 0 else ASH)
+
+
 CARDS = [
     ("gst-eval-harness", scene_gst_eval, "01", "gst-eval-harness",
      "slab accuracy across 5 identical runs · same prompt, same model"),
@@ -730,6 +829,8 @@ CARDS = [
      "rebuilt on the real 7,032-row Telco set · held-out 20%"),
     ("house-price-prediction", scene_house, "09", "House_price_prediction",
      "cleaning fixed the metric · location fixed the model"),
+    ("sonar-rock-vs-mine", scene_sonar, "10", "sonar_rock-vs-mine-prediction",
+     "the same model, the same data — only the seed changed"),
 ]
 
 if __name__ == "__main__":

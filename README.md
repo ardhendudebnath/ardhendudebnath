@@ -208,6 +208,31 @@ structural feature in the original list is worth less than knowing the city.
 
 ---
 
+### `10` · sonar_rock-vs-mine-prediction
+
+![200 single-split accuracies spread from 48% to 95%, with the cross-validated interval as a narrow band at 76%](3d/assets/cards/sonar-rock-vs-mine.webp)
+
+Logistic regression over UCI sonar returns — 208 samples, 60 frequency bands,
+111 mines and 97 rocks. The script could not run from a checkout: it read
+`/content/sonar data.csv`, a Colab path, so the CSV sitting beside it in the
+repo was never used.
+
+**The finding:** it reported one accuracy from a 90/10 split, and on 208
+samples that test set is **21 rows** — one sample is worth 4.8 points. Re-run
+the identical split under 200 seeds, changing nothing but the seed, and
+accuracy lands anywhere from **47.6% to 95.2%**. You could report 95% and be
+no more honest than reporting 48%. Repeated stratified 5-fold CV puts it at
+**76.3% ± 5.4%** over 50 fits, against a 53.4% majority baseline — with a
+14.4-point train/test gap that is worth stating rather than hiding.
+
+![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
+![Cross-validation](https://img.shields.io/badge/repeated_stratified_k--fold-16191e?style=flat-square)
+![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
+
+**[→ sonar_rock-vs-mine-prediction-](https://github.com/ardhendudebnath/sonar_rock-vs-mine-prediction-)**
+
+---
+
 ## Earlier work
 
 As they stand — practice projects from 2024–25, not rebuilt.
@@ -215,7 +240,6 @@ As they stand — practice projects from 2024–25, not rebuilt.
 | Repo | What | Year |
 |---|---|---|
 | [Chatbot_customer_satisfaction-project](https://github.com/ardhendudebnath/Chatbot_customer_satisfaction-project) | Customer sentiment chatbot — NLP preprocessing, word-frequency and heatmap analysis | 2024 |
-| [sonar_rock-vs-mine-prediction-](https://github.com/ardhendudebnath/sonar_rock-vs-mine-prediction-) | Binary classification on sonar returns | 2024 |
 | [Cognifyz-Internship-Project](https://github.com/ardhendudebnath/Cognifyz-Internship-Project) | Machine learning and data analysis internship work | 2025 |
 | [Image_Classification_Project-](https://github.com/ardhendudebnath/Image_Classification_Project-) | Image classification practice | 2025 |
 
