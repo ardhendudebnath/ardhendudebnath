@@ -156,13 +156,65 @@ Serving an open-weight LLM on vLLM and Kubernetes, benchmarked against a paid AP
 
 ---
 
+## Rebuilt
+
+Two 2024 notebooks were reporting numbers that did not mean anything. Both have
+been rebuilt on real data and now carry measured results.
+
+### `08` · predicting_customer_churn
+
+![Two measured operating points — threshold 0.50 catches 214 of 374 churners, threshold 0.30 catches 292](3d/assets/cards/predicting-customer-churn.webp)
+
+The notebook used to define five customers inline, split them 70/30, and report
+metrics on the resulting **two test rows** — `Accuracy 0.5, Precision 0.0,
+Recall 0.0, F1 0.0, ROC AUC 0.5`. It now loads the IBM Telco Customer Churn set
+it always claimed to use: 7,043 rows, 11 dropped for a blank `TotalCharges` at
+tenure 0, leaving 7,032 at 26.6% churn.
+
+**The finding:** ROC AUC **0.8401** on a held-out 20%, against 0.5 — chance —
+before. And the threshold matters more than the model: at the default 0.50 it
+catches 214 of 374 churners at 0.64 precision; at 0.30 it catches **292** at
+0.54. For a retention campaign a false positive costs one unnecessary discount,
+a false negative costs the customer. `tenure` carries the largest coefficient
+and it is negative.
+
+![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
+![Logistic Regression](https://img.shields.io/badge/logistic_regression-16191e?style=flat-square)
+![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
+
+**[→ predicting_customer_churn](https://github.com/ardhendudebnath/predicting_customer_churn_for_a_telecommunications_company)**
+
+---
+
+### `09` · House_price_prediction
+
+![R² across three measured variants — 0.4263, 0.5105, then 0.7086 once city is added](3d/assets/cards/house-price-prediction.webp)
+
+The notebook used to fit raw prices with no cleaning and report
+`MSE 991070536292` — an RMSE near **$995,000**, larger than most of the houses
+in the data. That error was describing a single $26.6M sale.
+
+**The finding:** cleaning fixed the metric but not the model — dropping the 49
+zero-price rows and the top 1% and training on log price gives RMSE $215,647
+and R² **0.4263**. What actually moved it was **location**: 44 city indicators
+take R² to **0.7086** and cut median error from 22.4% to **13.2%**. Every
+structural feature in the original list is worth less than knowing the city.
+
+![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
+![OLS](https://img.shields.io/badge/least_squares-16191e?style=flat-square)
+![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
+
+**[→ House_price_prediction](https://github.com/ardhendudebnath/House_price_prediction)**
+
+---
+
 ## Earlier work
+
+As they stand — practice projects from 2024–25, not rebuilt.
 
 | Repo | What | Year |
 |---|---|---|
 | [Chatbot_customer_satisfaction-project](https://github.com/ardhendudebnath/Chatbot_customer_satisfaction-project) | Customer sentiment chatbot — NLP preprocessing, word-frequency and heatmap analysis | 2024 |
-| [predicting_customer_churn...](https://github.com/ardhendudebnath/predicting_customer_churn_for_a_telecommunications_company) | Telecom churn prediction and retention signals | 2024 |
-| [House_price_prediction](https://github.com/ardhendudebnath/House_price_prediction) | Regression on housing data | 2024 |
 | [sonar_rock-vs-mine-prediction-](https://github.com/ardhendudebnath/sonar_rock-vs-mine-prediction-) | Binary classification on sonar returns | 2024 |
 | [Cognifyz-Internship-Project](https://github.com/ardhendudebnath/Cognifyz-Internship-Project) | Machine learning and data analysis internship work | 2025 |
 | [Image_Classification_Project-](https://github.com/ardhendudebnath/Image_Classification_Project-) | Image classification practice | 2025 |

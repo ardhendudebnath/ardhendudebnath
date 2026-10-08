@@ -595,6 +595,122 @@ def scene_serving(d, t, raw):
         tracked(d, (S(px), S(276)), "WEEK 1 OF 6 · NO DATA YET", f_h, BLOOD, 1.4)
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 08 · predicting_customer_churn — rebuilt on the real 7,032-row dataset
+#
+# The old notebook invented 5 rows and scored 0.5 AUC on a 2-row test set.
+# These are measured on the real IBM Telco set. Only the two thresholds that
+# were actually evaluated are shown — the card toggles between them rather
+# than sweeping, because intermediate operating points were never measured.
+# ═════════════════════════════════════════════════════════════════════════
+def scene_churn(d, t, raw):
+    f_big = font(F_UI, 44)
+    f_lab = font(F_MONO, 9)
+    f_h = font(F_MONO_B, 10)
+    f_v = font(F_UI, 13)
+
+    ops = [("0.50", 0.6426, 0.5722, 0.6054, 214, "default"),
+           ("0.30", 0.5397, 0.7807, 0.6383, 292, "tuned for F1")]
+    active = 0 if (raw % 1.0) < 0.5 else 1
+
+    y = 104
+    for i, (th, prec, rec, f1, caught, note) in enumerate(ops):
+        on = (i == active)
+        box = (26, 32, 40) if on else (18, 20, 25)
+        d.rectangle([S(40), S(y), S(344), S(y + 84)], fill=box,
+                    outline=BLOOD if on else EDGE, width=S(1))
+        if on:
+            d.rectangle([S(40), S(y), S(43), S(y + 84)], fill=BLOOD)
+
+        tracked(d, (S(54), S(y + 10)), f"THRESHOLD {th}", f_h,
+                BONE if on else (84, 90, 100), 1.4)
+        d.text((S(186), S(y + 10)), note, font=f_lab,
+               fill=SMOKE if on else (64, 70, 79))
+
+        for j, (nm, val) in enumerate((("precision", prec), ("recall", rec))):
+            by = y + 32 + j * 18
+            d.text((S(54), S(by - 2)), nm, font=f_lab,
+                   fill=SMOKE if on else (64, 70, 79))
+            d.rectangle([S(118), S(by), S(258), S(by + 9)], fill=(24, 27, 33))
+            w = 140 * val
+            d.rectangle([S(118), S(by), S(118 + w), S(by + 9)],
+                        fill=BLOOD if (on and nm == "recall") else
+                        ((110, 117, 128) if on else (44, 48, 56)))
+            d.text((S(266), S(by - 3)), f"{val:.4f}", font=f_lab,
+                   fill=BONE if on else (70, 76, 85))
+
+        d.text((S(54), S(y + 68)), f"caught {caught} of 374 churners",
+               font=f_lab, fill=BLOOD if on else (64, 70, 79))
+        y += 96
+
+    px = 376
+    d.line([S(px - 20), S(96), S(px - 20), S(286)], fill=EDGE, width=S(1))
+    val = 0.8401 * ease(t / 0.8)
+    d.text((S(px), S(104)), f"{val:.4f}", font=f_big, fill=BONE)
+    d.text((S(px + 2), S(156)), "ROC AUC", font=f_lab, fill=ASH)
+    if t > 0.5:
+        d.text((S(px + 2), S(176)), "was 0.5000 — chance,", font=f_lab, fill=BLOOD)
+        d.text((S(px + 2), S(190)), "on 5 invented rows", font=f_lab, fill=BLOOD)
+    d.line([S(px), S(210), S(px + 214), S(210)], fill=EDGE, width=S(1))
+    if t > 0.7:
+        for k, line in enumerate(["7,032 rows · 26.6% churn",
+                                  "tenure          -1.24",
+                                  "Contract 2yr    -0.62",
+                                  "Fiber optic     +0.36"]):
+            d.text((S(px), S(222 + k * 17)), line, font=f_lab,
+                   fill=SMOKE if k == 0 else ASH)
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# 09 · House_price_prediction — three measured variants
+# ═════════════════════════════════════════════════════════════════════════
+def scene_house(d, t, raw):
+    f_big = font(F_UI, 44)
+    f_lab = font(F_MONO, 9)
+    f_h = font(F_MONO_B, 10)
+    f_v = font(F_UI, 14)
+
+    rows = [("cleaned + log target", 0.4263, 12),
+            ("+ log areas, age", 0.5105, 12),
+            ("+ city", 0.7086, 55)]
+    left, right = 182, 362
+    y = 120
+    for i, (name, r2, feats) in enumerate(rows):
+        p = stagger(t, i, len(rows), 0.6)
+        hot = (i == 2)
+        tw = tracked_w(d, name, f_lab, 1.0)
+        tracked(d, (S(left - 12) - tw, S(y)), name, f_lab,
+                BONE if hot else SMOKE, 1.0)
+        d.rectangle([S(left), S(y - 2), S(right), S(y + 11)], fill=(24, 27, 33))
+        w = (right - left) * r2 * p
+        d.rectangle([S(left), S(y - 2), S(left + w), S(y + 11)],
+                    fill=BLOOD if hot else (72, 79, 90))
+        if p > 0.55:
+            d.text((S(left + w + 8), S(y - 4)), f"{r2:.4f}", font=f_v,
+                   fill=BONE if hot else SMOKE)
+            d.text((S(left + w + 54), S(y)), f"{feats} feats", font=f_lab,
+                   fill=(70, 76, 85))
+        y += 44
+    d.text((S(left), S(y - 6)), "R² on a held-out 20%", font=f_lab,
+           fill=(70, 76, 85))
+
+    px = 440
+    d.line([S(px - 22), S(96), S(px - 22), S(286)], fill=EDGE, width=S(1))
+    val = 22.4 + (13.2 - 22.4) * ease(t / 0.8)
+    d.text((S(px), S(104)), f"{val:.1f}%", font=f_big, fill=BONE)
+    d.text((S(px + 2), S(156)), "median error", font=f_lab, fill=ASH)
+    if t > 0.5:
+        d.text((S(px + 2), S(176)), "was 22.4%", font=f_lab, fill=BLOOD)
+    d.line([S(px), S(196), S(px + 150), S(196)], fill=EDGE, width=S(1))
+    if t > 0.7:
+        for k, line in enumerate(["MAE  147k → 96k",
+                                  "RMSE 995k → 154k",
+                                  "4,505 of 4,600 rows",
+                                  "44 cities"]):
+            d.text((S(px), S(208 + k * 17)), line, font=f_lab,
+                   fill=SMOKE if k < 2 else ASH)
+
+
 CARDS = [
     ("gst-eval-harness", scene_gst_eval, "01", "gst-eval-harness",
      "slab accuracy across 5 identical runs · same prompt, same model"),
@@ -610,6 +726,10 @@ CARDS = [
      "symptom text → urgency, offline · follow-ups can escalate"),
     ("llm-serving-unit-economics", scene_serving, "07", "llm-serving-unit-economics",
      "every number in this repo is absent rather than estimated"),
+    ("predicting-customer-churn", scene_churn, "08", "predicting_customer_churn",
+     "rebuilt on the real 7,032-row Telco set · held-out 20%"),
+    ("house-price-prediction", scene_house, "09", "House_price_prediction",
+     "cleaning fixed the metric · location fixed the model"),
 ]
 
 if __name__ == "__main__":

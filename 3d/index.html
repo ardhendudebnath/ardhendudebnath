@@ -1140,31 +1140,60 @@ const PROJECTS = [
            RTX 5070 Ti with 12,227 MiB.`,
     tech: ['vLLM', 'Kubernetes', 'Prometheus', 'Grafana', 'Podman', 'pytest'],
   },
+  {
+    name: 'predicting_customer_churn', tag: 'Rebuilt · 2024',
+    repo: 'predicting_customer_churn_for_a_telecommunications_company',
+    card: 'predicting-customer-churn',
+    alt: 'Two measured operating points — threshold 0.50 catches 214 of 374 churners, 0.30 catches 292',
+    desc: `The notebook used to define five customers inline, split them 70/30, and
+           report metrics on the resulting two test rows. It now loads the IBM Telco
+           Customer Churn set it always claimed to use — 7,032 rows at 26.6% churn.`,
+    find: `ROC AUC 0.8401 on a held-out 20%, against 0.5 — chance — before. The
+           threshold matters more than the model: at 0.50 it catches 214 of 374
+           churners at 0.64 precision, at 0.30 it catches 292 at 0.54. A false
+           positive costs one discount; a false negative costs the customer.`,
+    tech: ['NumPy', 'logistic regression', 'no pandas, no sklearn'],
+  },
+  {
+    name: 'House_price_prediction', tag: 'Rebuilt · 2024',
+    card: 'house-price-prediction',
+    alt: 'R² across three measured variants — 0.4263, 0.5105, then 0.7086 once city is added',
+    desc: `The notebook used to fit raw prices with no cleaning and report an RMSE
+           near $995,000 — larger than most of the houses in the data. That error was
+           describing a single $26.6M sale.`,
+    find: `Cleaning fixed the metric but not the model — dropping the zero-price rows
+           and the top 1% leaves R² at 0.4263. Location is what moved it: 44 city
+           indicators take R² to 0.7086 and cut median error from 22.4% to 13.2%.`,
+    tech: ['NumPy', 'least squares', 'no pandas, no sklearn'],
+  },
 ];
 
 const EARLIER = [
   ['Chatbot_customer_satisfaction-project', 'Customer sentiment chatbot — NLP preprocessing, word-frequency and heatmap analysis', '2024'],
-  ['predicting_customer_churn_for_a_telecommunications_company', 'Telecom churn prediction and retention signals', '2024'],
-  ['House_price_prediction', 'Regression on housing data', '2024'],
   ['sonar_rock-vs-mine-prediction-', 'Binary classification on sonar returns', '2024'],
   ['Cognifyz-Internship-Project', 'Machine learning and data analysis internship work', '2025'],
   ['Image_Classification_Project-', 'Image classification practice', '2025'],
 ];
 
 function initBuilt() {
-  document.getElementById('projects').innerHTML = PROJECTS.map((p, i) => `
+  document.getElementById('projects').innerHTML = PROJECTS.map((p, i) => {
+    // Card filenames and repo names diverge for the rebuilt projects.
+    const href = REPO + (p.repo || p.name);
+    const card = p.card || p.name;
+    return `
     <article class="proj rise">
-      <a class="proj-art" href="${REPO}${p.name}" aria-label="${p.name} on GitHub">
-        <img src="assets/cards/${p.name}.webp" alt="${p.alt}" loading="lazy" decoding="async">
+      <a class="proj-art" href="${href}" aria-label="${p.name} on GitHub">
+        <img src="assets/cards/${card}.webp" alt="${p.alt}" loading="lazy" decoding="async">
       </a>
       <div class="proj-body">
         <p class="n">${String(i + 1).padStart(2, '0')} &nbsp;·&nbsp; ${p.tag}</p>
-        <h3><a href="${REPO}${p.name}">${p.name}</a></h3>
+        <h3><a href="${href}">${p.name}</a></h3>
         <p class="desc">${p.desc}</p>
         <p class="find"><b>${p.findLabel || 'The finding.'}</b> ${p.find}</p>
         <ul class="chips">${p.tech.map((t) => `<li>${t}</li>`).join('')}</ul>
       </div>
-    </article>`).join('');
+    </article>`;
+  }).join('');
 
   document.getElementById('earlier-list').innerHTML = EARLIER.map(([n, d, y]) => `
     <li>
