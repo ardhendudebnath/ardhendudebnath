@@ -25,58 +25,62 @@ Most of the current work sits in **one vertical: Indian GST**. Three repos that 
 
 ---
 
-## `01` · gst-eval-harness
+## `01` · llm-gateway-rag
 
-![Slab accuracy across five identical runs: 53.6, 50.0, 53.6, 50.0, 64.3](3d/assets/cards/gst-eval-harness.webp)
+![Hybrid retrieval lifts recall@5 from 0.873 to 1.000, and identifier-only queries from 0.722 to 1.000](3d/assets/cards/llm-gateway-rag.webp)
 
-An open, hand-labelled benchmark for Indian GST rate-slab classification. India's slabs changed on 22 Sep 2025 and the 12% slab was abolished — this measures how often LLMs still answer from the old table.
+A self-hosted LLM gateway and RAG backend. One OpenAI-compatible API in front of several providers, with automatic fallback, circuit breakers and a tenant-isolated semantic cache. Documents are ingested by background workers into Qdrant; questions come back reranked with numbered citations. No LangChain, no LlamaIndex.
 
-**The finding:** run the *same* prompt against the *same* model five times and slab accuracy swings from 50.0% to 64.3%. Self-agreement is 53.6% — the model reproduces its own answer on only 15 of 28 rows. An abolished slab is recited somewhere in the response 11.4% of the time.
-
-![Python](https://img.shields.io/badge/Python_3.11-16191e?style=flat-square&logo=python&logoColor=eae7e0)
-![pypdf](https://img.shields.io/badge/pypdf-16191e?style=flat-square)
-![NVIDIA NIM](https://img.shields.io/badge/NVIDIA_NIM-16191e?style=flat-square&logo=nvidia&logoColor=eae7e0)
-![Docker](https://img.shields.io/badge/Docker-16191e?style=flat-square&logo=docker&logoColor=eae7e0)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-16191e?style=flat-square&logo=githubactions&logoColor=eae7e0)
-
-**[→ gst-eval-harness](https://github.com/ardhendudebnath/gst-eval-harness)**
-
----
-
-## `02` · gst-resilient-agent
-
-![Retrieval recall at k: semantic reaches 89.3% at k=10, hybrid 82.1%, keyword 60.7%](3d/assets/cards/gst-resilient-agent.webp)
-
-A multi-step agent that audits GST invoice lines against hash-pinned Gazette notifications — and the chaos harness built to break it. Seven tools, a hand-rolled loop, a failure taxonomy, and eleven injected failure modes.
-
-**The finding:** semantic retrieval reaches 89.3% recall@10 against keyword's 60.7% — and pays 715ms for it versus 9ms. Hybrid RRF lands in between on both axes. Chaos injection configured at 10/25/50% actually fires at 8.2/24.9/49.3%.
+**The finding:** hybrid retrieval takes recall@5 from 0.873 to **1.000**, and identifier-only queries — the ones dense embeddings are worst at — from 0.722 to **1.000**, in 14.7 ms. Adding backpressure took chat throughput from 20.6 to **156.8 req/s**; before it, unbounded inference OOM-killed the API at 50 users with 74% errors. Killing the primary provider mid-traffic produced **0 user-visible failures across 2,100 requests**, breakers opening 0.9 s after the fault. The RAG p95 target of 1 s was *not* met — it sits at 1.4 s.
 
 ![Python](https://img.shields.io/badge/Python-16191e?style=flat-square&logo=python&logoColor=eae7e0)
-![Claude Agent SDK](https://img.shields.io/badge/Claude_Agent_SDK-16191e?style=flat-square&logo=anthropic&logoColor=eae7e0)
-![Nemotron](https://img.shields.io/badge/Nemotron_3-16191e?style=flat-square&logo=nvidia&logoColor=eae7e0)
-![pypdf](https://img.shields.io/badge/pypdf-16191e?style=flat-square)
-![pytest](https://img.shields.io/badge/pytest-16191e?style=flat-square&logo=pytest&logoColor=eae7e0)
+![FastAPI](https://img.shields.io/badge/FastAPI-16191e?style=flat-square&logo=fastapi&logoColor=eae7e0)
+![Qdrant](https://img.shields.io/badge/Qdrant-16191e?style=flat-square)
+![Redis](https://img.shields.io/badge/Redis-16191e?style=flat-square&logo=redis&logoColor=eae7e0)
+![Celery](https://img.shields.io/badge/Celery-16191e?style=flat-square&logo=celery&logoColor=eae7e0)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-16191e?style=flat-square&logo=kubernetes&logoColor=eae7e0)
+![Prometheus](https://img.shields.io/badge/Prometheus-16191e?style=flat-square&logo=prometheus&logoColor=eae7e0)
+![ONNX](https://img.shields.io/badge/ONNX_Runtime-16191e?style=flat-square&logo=onnx&logoColor=eae7e0)
 
-**[→ gst-resilient-agent](https://github.com/ardhendudebnath/gst-resilient-agent)**
+**[→ llm-gateway-rag](https://github.com/ardhendudebnath/llm-gateway-rag)**
 
 ---
 
-## `03` · register-aware-translation
+## `02` · vision-rl-navigation
 
-![A formality dial sweeping between তুই, তুমি and আপনি](3d/assets/cards/register-aware-translation.webp)
+![Success rate by condition — the classical planner leads the learned policy in all seven](3d/assets/cards/vision-rl-navigation.webp)
 
-Speech translation that gets the *register* right — তুই or আপনি, du or Sie. Standard translators collapse that distinction into an arbitrary choice; here it is a dial. 20 languages, works offline.
+Vision-conditioned reinforcement learning for mobile robot navigation, measured against a classical planner rather than against nothing. A differential-drive robot reaching a goal pose in procedurally generated arenas, 32-beam lidar, continuous `(v, ω)`. Pre-registered endpoints, exact permutation tests, six seeds per arm.
 
-**The finding:** 100% register detection across all 20 languages, 98.5% exactness on Bengali, and 95.3% agreement against the external FAME-MT set over 30,281 sentences. The register layer itself costs about 1 millisecond.
+**The finding:** across seven conditions the learned policy beats the classical planner in **none of them** — closest on `dynamic` (−0.020, not significant), worst on `narrow` (−0.168). The reward asymmetry turned out to matter more than the architecture: collisions cost 20 and a full timeout cost 5, so collisions fell from 27 to 2 per 100 episodes and 21 of 25 recovered episodes simply became timeouts. RGB policies trailed depth by 0.16–0.24 on every condition. Real Nav2 over ROS 2, meanwhile, *beats* the classical baseline on the cluttered conditions.
 
-![PyTorch](https://img.shields.io/badge/PyTorch-16191e?style=flat-square&logo=pytorch&logoColor=eae7e0)
-![Whisper](https://img.shields.io/badge/Whisper-16191e?style=flat-square&logo=openai&logoColor=eae7e0)
-![Transformers](https://img.shields.io/badge/Transformers-16191e?style=flat-square&logo=huggingface&logoColor=eae7e0)
-![Flask](https://img.shields.io/badge/Flask-16191e?style=flat-square&logo=flask&logoColor=eae7e0)
-![Socket.IO](https://img.shields.io/badge/Socket.IO-16191e?style=flat-square&logo=socketdotio&logoColor=eae7e0)
-![SQLite](https://img.shields.io/badge/SQLite-16191e?style=flat-square&logo=sqlite&logoColor=eae7e0)
+![PPO](https://img.shields.io/badge/PPO-16191e?style=flat-square)
+![ROS 2](https://img.shields.io/badge/ROS_2_Jazzy-16191e?style=flat-square&logo=ros&logoColor=eae7e0)
+![Nav2](https://img.shields.io/badge/Nav2-16191e?style=flat-square)
+![Gymnasium](https://img.shields.io/badge/Gymnasium-16191e?style=flat-square)
+![Hydra](https://img.shields.io/badge/Hydra-16191e?style=flat-square)
+![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
 
-**[→ register-aware-translation](https://github.com/ardhendudebnath/register-aware-translation)**
+**[→ vision-rl-navigation](https://github.com/ardhendudebnath/vision-rl-navigation)**
+
+---
+
+## `03` · emotionedge-cpp
+
+![Per-stage latency, CPU against GPU — end-to-end falls from 1262 ms to 365 ms](3d/assets/cards/emotionedge-cpp.webp)
+
+Real-time speech translation that keeps the speaker's emotion. ASR, emotion detection across valence/arousal/dominance, emotion-aware translation and expressive TTS in one C++20 process with **no Python at runtime**, on ONNX Runtime.
+
+**The finding:** moving the pipeline to GPU collapsed end-to-end p50 from 1262 ms to **365 ms**, p95 to 631 ms against an 800 ms budget, using 5 s of CPU time instead of 51 s — with quality held (RAVDESS WER 0.042, chrF 56.70 on CUDA against 56.72 on CPU). The emotion-token NLLB LoRA beats plain NLLB-600M on FLORES chrF, 56.7 to 55.8. Echo cancellation was built, measured and **not adopted**: WebRTC AEC3 removed 8.6–14.7 dB of loudspeaker echo but fragmented the transcript, so it stays off until it can be tuned on real hardware.
+
+![C++20](https://img.shields.io/badge/C%2B%2B20-16191e?style=flat-square&logo=cplusplus&logoColor=eae7e0)
+![ONNX](https://img.shields.io/badge/ONNX_Runtime-16191e?style=flat-square&logo=onnx&logoColor=eae7e0)
+![CUDA](https://img.shields.io/badge/CUDA-16191e?style=flat-square&logo=nvidia&logoColor=eae7e0)
+![whisper.cpp](https://img.shields.io/badge/whisper.cpp-16191e?style=flat-square)
+![NLLB-200](https://img.shields.io/badge/NLLB--200-16191e?style=flat-square)
+![CMake](https://img.shields.io/badge/CMake-16191e?style=flat-square&logo=cmake&logoColor=eae7e0)
+
+**[→ emotionedge-cpp](https://github.com/ardhendudebnath/emotionedge-cpp)**
 
 ---
 
@@ -98,9 +102,45 @@ Predicting molecular properties with neural networks that are *provably* invaria
 
 ---
 
-## `05` · chest-xray-classifier
+## `05` · gst-resilient-agent
 
-![Per-class F1: COVID19 0.982, PNEUMONIA 0.970, NORMAL 0.953, LUNG_OPACITY 0.929](3d/assets/cards/chest-xray-classifier.webp)
+![Retrieval recall at k — semantic reaches 89.3% at k=10, hybrid 82.1%, keyword 60.7%](3d/assets/cards/gst-resilient-agent.webp)
+
+A multi-step agent that audits Indian GST invoice lines against hash-pinned Gazette notifications — and the chaos harness built to break it. Seven tools, a hand-rolled loop, a failure taxonomy, and eleven injected failure modes.
+
+**The finding:** semantic retrieval reaches 89.3% recall@10 against keyword's 60.7% — and pays 715 ms for it versus 9 ms. Hybrid RRF lands in between on both axes. Chaos injection configured at 10/25/50% actually fires at 8.2/24.9/49.3%.
+
+![Python](https://img.shields.io/badge/Python-16191e?style=flat-square&logo=python&logoColor=eae7e0)
+![Claude Agent SDK](https://img.shields.io/badge/Claude_Agent_SDK-16191e?style=flat-square&logo=anthropic&logoColor=eae7e0)
+![Nemotron](https://img.shields.io/badge/Nemotron_3-16191e?style=flat-square&logo=nvidia&logoColor=eae7e0)
+![pypdf](https://img.shields.io/badge/pypdf-16191e?style=flat-square)
+![pytest](https://img.shields.io/badge/pytest-16191e?style=flat-square&logo=pytest&logoColor=eae7e0)
+
+**[→ gst-resilient-agent](https://github.com/ardhendudebnath/gst-resilient-agent)**
+
+---
+
+## `06` · register-aware-translation
+
+![A formality dial sweeping between তুই, তুমি and আপনি](3d/assets/cards/register-aware-translation.webp)
+
+Speech translation that gets the *register* right — তুই or আপনি, du or Sie. Standard translators collapse that distinction into an arbitrary choice; here it is a dial. 20 languages, works offline.
+
+**The finding:** 100% register detection across all 20 languages, 98.5% exactness on Bengali, and 95.3% agreement against the external FAME-MT set over 30,281 sentences. The register layer itself costs about 1 millisecond.
+
+![PyTorch](https://img.shields.io/badge/PyTorch-16191e?style=flat-square&logo=pytorch&logoColor=eae7e0)
+![Whisper](https://img.shields.io/badge/Whisper-16191e?style=flat-square&logo=openai&logoColor=eae7e0)
+![Transformers](https://img.shields.io/badge/Transformers-16191e?style=flat-square&logo=huggingface&logoColor=eae7e0)
+![Flask](https://img.shields.io/badge/Flask-16191e?style=flat-square&logo=flask&logoColor=eae7e0)
+![SQLite](https://img.shields.io/badge/SQLite-16191e?style=flat-square&logo=sqlite&logoColor=eae7e0)
+
+**[→ register-aware-translation](https://github.com/ardhendudebnath/register-aware-translation)**
+
+---
+
+## `07` · chest-xray-classifier
+
+![Per-class F1 — COVID19 0.982, PNEUMONIA 0.970, NORMAL 0.953, LUNG_OPACITY 0.929](3d/assets/cards/chest-xray-classifier.webp)
 
 Four-class CNN over chest radiographs — NORMAL, PNEUMONIA, COVID19, LUNG_OPACITY — with Grad-CAM, SHAP, and a Mahalanobis out-of-distribution check. *Research prototype. Not a medical device, not clinically validated.*
 
@@ -111,17 +151,16 @@ Four-class CNN over chest radiographs — NORMAL, PNEUMONIA, COVID19, LUNG_OPACI
 ![FastAPI](https://img.shields.io/badge/FastAPI-16191e?style=flat-square&logo=fastapi&logoColor=eae7e0)
 ![Grad-CAM](https://img.shields.io/badge/Grad--CAM-16191e?style=flat-square)
 ![SHAP](https://img.shields.io/badge/SHAP-16191e?style=flat-square)
-![MIT](https://img.shields.io/badge/MIT-16191e?style=flat-square)
 
 **[→ chest-xray-classifier](https://github.com/ardhendudebnath/chest-xray-classifier)**
 
 ---
 
-## `06` · smart-healthcare-triage
+## `08` · smart-healthcare-triage
 
 ![An urgency ladder escalating from SELF_CARE through URGENT_CARE to EMERGENCY](3d/assets/cards/smart-healthcare-triage.webp)
 
-Symptom-based triage assistant. Describe symptoms in English, Hindi or Bengali; get an urgency class, a helpline, and a specialist suggestion. Works offline, audits every decision with a timestamp, and produces a structured clinical handoff.
+Symptom-based triage assistant. Describe symptoms in English, Hindi or Bengali; get an urgency class, a helpline and a specialist suggestion. Works offline, audits every decision with a timestamp, and produces a structured clinical handoff.
 
 **The finding:** follow-up questions can *escalate* a case — triage is not a single-shot classification. 79 symptoms, 487 phrases across three languages, 122 tests covering the safety overrides.
 
@@ -129,146 +168,46 @@ Symptom-based triage assistant. Describe symptoms in English, Hindi or Bengali; 
 ![FastAPI](https://img.shields.io/badge/FastAPI-16191e?style=flat-square&logo=fastapi&logoColor=eae7e0)
 ![spaCy](https://img.shields.io/badge/spaCy-16191e?style=flat-square&logo=spacy&logoColor=eae7e0)
 ![SQLite](https://img.shields.io/badge/SQLite-16191e?style=flat-square&logo=sqlite&logoColor=eae7e0)
-![Gemini](https://img.shields.io/badge/Gemini_API-16191e?style=flat-square&logo=googlegemini&logoColor=eae7e0)
 ![PWA](https://img.shields.io/badge/PWA-16191e?style=flat-square&logo=pwa&logoColor=eae7e0)
 
 **[→ smart-healthcare-triage](https://github.com/ardhendudebnath/smart-healthcare-triage)**
 
 ---
 
-## `07` · llm-serving-unit-economics
+## `09` · neuro-sathi
+
+![Six language packs, one native-reviewed and five hidden until review; deviation alerts are rules-only](3d/assets/cards/neuro-sathi.webp)
+
+An offline-first multilingual companion for elderly cognitive care in North-East India — adaptive memory games, a voice companion, a memory book, medicine reminders, and a caregiver dashboard with baseline-deviation alerts. FastAPI, Flutter and Next.js over Postgres with row-level security.
+
+**Status:** built, and deliberately not claimed as validated. **It does not diagnose.** Five of the six language packs — Assamese, Bengali, Nepali, Manipuri, Bodo — stay hidden from users until a native speaker reviews them. Deviation alerts compare the last 7 days against the previous 28 and flag changes beyond 2 SD, but the model behind them is still rules, not the trained tree-based or TFLite models planned. Clinical validation and usability studies remain outstanding.
+
+![FastAPI](https://img.shields.io/badge/FastAPI-16191e?style=flat-square&logo=fastapi&logoColor=eae7e0)
+![Flutter](https://img.shields.io/badge/Flutter-16191e?style=flat-square&logo=flutter&logoColor=eae7e0)
+![Next.js](https://img.shields.io/badge/Next.js-16191e?style=flat-square&logo=nextdotjs&logoColor=eae7e0)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL_RLS-16191e?style=flat-square&logo=postgresql&logoColor=eae7e0)
+![Redis](https://img.shields.io/badge/Redis-16191e?style=flat-square&logo=redis&logoColor=eae7e0)
+![Docker](https://img.shields.io/badge/Docker-16191e?style=flat-square&logo=docker&logoColor=eae7e0)
+
+**[→ neuro-sathi](https://github.com/ardhendudebnath/neuro-sathi)**
+
+---
+
+## `10` · llm-serving-unit-economics
 
 ![A 3D measurement space — cost, quality and latency axes around three empty workload slots](3d/assets/cards/llm-serving-unit-economics.webp)
 
-Serving an open-weight LLM on vLLM and Kubernetes, benchmarked against a paid API on the same GST classification task as `01`. Three dimensions — latency, quality, cost — pointed at one question: above what request volume does self-hosting actually win?
+Serving an open-weight LLM on vLLM and Kubernetes, benchmarked against a paid API. Three dimensions — latency, quality, cost — pointed at one question: above what request volume does self-hosting actually win?
 
-**Status: week 1 of 6. Build complete, nothing measured yet.** The diagram above is the measurement *design*, not results — the repo's standing rule is that every number in it is **absent rather than estimated**, and those three slots stay empty until a run fills them. Defined so far: three workload profiles — `short` (606-char median prompt → 48 tokens), `long_in` (7,177 → 48), `long_out` (446 → 768) — on an RTX 5070 Ti Laptop with 12,227 MiB. Cost counts GPU rental at dated market rates and excludes engineering time, on-call, redundancy and idle capacity.
+**Status: week 1 of 6. Build complete, nothing measured yet.** The diagram is the measurement *design*, not results — the repo's standing rule is that every number in it is **absent rather than estimated**, and those three slots stay empty until a run fills them. Defined so far: three workload profiles — `short` (606-char median prompt → 48 tokens), `long_in` (7,177 → 48), `long_out` (446 → 768) — on an RTX 5070 Ti Laptop with 12,227 MiB.
 
 ![vLLM](https://img.shields.io/badge/vLLM-16191e?style=flat-square)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-16191e?style=flat-square&logo=kubernetes&logoColor=eae7e0)
 ![Prometheus](https://img.shields.io/badge/Prometheus-16191e?style=flat-square&logo=prometheus&logoColor=eae7e0)
 ![Grafana](https://img.shields.io/badge/Grafana-16191e?style=flat-square&logo=grafana&logoColor=eae7e0)
 ![Podman](https://img.shields.io/badge/Podman-16191e?style=flat-square&logo=podman&logoColor=eae7e0)
-![Python](https://img.shields.io/badge/Python-16191e?style=flat-square&logo=python&logoColor=eae7e0)
-![pytest](https://img.shields.io/badge/pytest-16191e?style=flat-square&logo=pytest&logoColor=eae7e0)
 
 **[→ llm-serving-unit-economics](https://github.com/ardhendudebnath/llm-serving-unit-economics)**
-
----
-
-## Rebuilt
-
-Two 2024 notebooks were reporting numbers that did not mean anything. Both have
-been rebuilt on real data and now carry measured results.
-
-### `08` · predicting_customer_churn
-
-![Two measured operating points — threshold 0.50 catches 214 of 374 churners, threshold 0.30 catches 292](3d/assets/cards/predicting-customer-churn.webp)
-
-The notebook used to define five customers inline, split them 70/30, and report
-metrics on the resulting **two test rows** — `Accuracy 0.5, Precision 0.0,
-Recall 0.0, F1 0.0, ROC AUC 0.5`. It now loads the IBM Telco Customer Churn set
-it always claimed to use: 7,043 rows, 11 dropped for a blank `TotalCharges` at
-tenure 0, leaving 7,032 at 26.6% churn.
-
-**The finding:** ROC AUC **0.8401** on a held-out 20%, against 0.5 — chance —
-before. And the threshold matters more than the model: at the default 0.50 it
-catches 214 of 374 churners at 0.64 precision; at 0.30 it catches **292** at
-0.54. For a retention campaign a false positive costs one unnecessary discount,
-a false negative costs the customer. `tenure` carries the largest coefficient
-and it is negative.
-
-![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
-![Logistic Regression](https://img.shields.io/badge/logistic_regression-16191e?style=flat-square)
-![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
-
-**[→ predicting_customer_churn](https://github.com/ardhendudebnath/predicting_customer_churn_for_a_telecommunications_company)**
-
----
-
-### `09` · House_price_prediction
-
-![R² across three measured variants — 0.4263, 0.5105, then 0.7086 once city is added](3d/assets/cards/house-price-prediction.webp)
-
-The notebook used to fit raw prices with no cleaning and report
-`MSE 991070536292` — an RMSE near **$995,000**, larger than most of the houses
-in the data. That error was describing a single $26.6M sale.
-
-**The finding:** cleaning fixed the metric but not the model — dropping the 49
-zero-price rows and the top 1% and training on log price gives RMSE $215,647
-and R² **0.4263**. What actually moved it was **location**: 44 city indicators
-take R² to **0.7086** and cut median error from 22.4% to **13.2%**. Every
-structural feature in the original list is worth less than knowing the city.
-
-![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
-![OLS](https://img.shields.io/badge/least_squares-16191e?style=flat-square)
-![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
-
-**[→ House_price_prediction](https://github.com/ardhendudebnath/House_price_prediction)**
-
----
-
-### `10` · sonar_rock-vs-mine-prediction
-
-![200 single-split accuracies spread from 48% to 95%, with the cross-validated interval as a narrow band at 76%](3d/assets/cards/sonar-rock-vs-mine.webp)
-
-Logistic regression over UCI sonar returns — 208 samples, 60 frequency bands,
-111 mines and 97 rocks. The script could not run from a checkout: it read
-`/content/sonar data.csv`, a Colab path, so the CSV sitting beside it in the
-repo was never used.
-
-**The finding:** it reported one accuracy from a 90/10 split, and on 208
-samples that test set is **21 rows** — one sample is worth 4.8 points. Re-run
-the identical split under 200 seeds, changing nothing but the seed, and
-accuracy lands anywhere from **47.6% to 95.2%**. You could report 95% and be
-no more honest than reporting 48%. Repeated stratified 5-fold CV puts it at
-**76.3% ± 5.4%** over 50 fits, against a 53.4% majority baseline — with a
-14.4-point train/test gap that is worth stating rather than hiding.
-
-![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
-![Cross-validation](https://img.shields.io/badge/repeated_stratified_k--fold-16191e?style=flat-square)
-![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
-
-**[→ sonar_rock-vs-mine-prediction-](https://github.com/ardhendudebnath/sonar_rock-vs-mine-prediction-)**
-
----
-
-### `11` · Chatbot_customer_satisfaction
-
-![The sentiment lexicon the model learned — bad, worst, boring, plot and script on one side, great, hilarious, perfect and excellent on the other](3d/assets/cards/chatbot-sentiment.webp)
-
-Sentiment analysis over 2,000 labelled reviews — TF-IDF across 6,000 terms,
-logistic regression, stratified 5-fold cross-validation. The repo's own
-`dataset.csv` is the Kaggle *Customer Personality* marketing table, 2,240 rows
-of `Income` and `MntWines` and `AcceptedCmp1`, with **no free text in it at
-all** — so the old notebook was tokenising column headers, tabs and digits, and
-the word-frequency chart was counting them.
-
-**The finding:** accuracy **86.3% ± 1.1%**, ROC AUC **0.939**, against a 50%
-baseline on an exactly balanced corpus. More interesting is the lexicon, since
-no sentiment word list was supplied anywhere — `bad` (−3.65) and `worst`
-(−2.61) fall out on one side, `great` (+2.04) and `hilarious` (+1.57) on the
-other. But two of the strongest negative terms are not sentiment words:
-`plot` (−2.05) and `script` (−1.87). People reach for those nouns to explain
-why a film failed and almost never to praise one — the model learned a
-discourse pattern, not a dictionary.
-
-![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
-![TF-IDF](https://img.shields.io/badge/TF--IDF-16191e?style=flat-square)
-![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
-
-**[→ Chatbot_customer_satisfaction-project](https://github.com/ardhendudebnath/Chatbot_customer_satisfaction-project)**
-
----
-
-## Earlier work
-
-As they stand — practice projects from 2024–25, not rebuilt.
-
-| Repo | What | Year |
-|---|---|---|
-| [Cognifyz-Internship-Project](https://github.com/ardhendudebnath/Cognifyz-Internship-Project) | Machine learning and data analysis internship work | 2025 |
-| [Image_Classification_Project-](https://github.com/ardhendudebnath/Image_Classification_Project-) | Image classification practice | 2025 |
 
 ---
 

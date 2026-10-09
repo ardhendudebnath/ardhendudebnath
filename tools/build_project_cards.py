@@ -874,29 +874,231 @@ def scene_sentiment(d, t, raw):
                    fill=SMOKE if k == 0 else ASH)
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 12 · llm-gateway-rag — hybrid retrieval closes the gap to 1.000
+# ═════════════════════════════════════════════════════════════════════════
+def scene_gateway(d, t, raw):
+    f_w = font(F_MONO, 9)
+    f_big = font(F_UI, 42)
+    f_h = font(F_MONO_B, 10)
+    f_v = font(F_UI, 13)
+
+    groups = [("all queries", 0.873, 1.000), ("identifier-only", 0.722, 1.000)]
+    left, right = 150, 392
+    y = 120
+    for gi, (name, dense, hybrid) in enumerate(groups):
+        tracked(d, (S(40), S(y - 2)), name, f_h, SMOKE, 1.0)
+        for bi, (lab, val, col) in enumerate((("dense", dense, (72, 79, 90)),
+                                              ("hybrid", hybrid, BLOOD))):
+            p = stagger(t, gi * 2 + bi, 4, 0.6)
+            by = y + 20 + bi * 20
+            d.text((S(52), S(by - 1)), lab, font=f_w, fill=ASH)
+            d.rectangle([S(left), S(by), S(right), S(by + 11)], fill=(24, 27, 33))
+            w = (right - left) * val * p
+            d.rectangle([S(left), S(by), S(left + w), S(by + 11)], fill=col)
+            if p > 0.6:
+                d.text((S(left + w + 8), S(by - 3)), f"{val:.3f}", font=f_v,
+                       fill=BONE if bi else SMOKE)
+        y += 86
+    d.text((S(40), S(y - 6)), "recall@5 over 102 labelled questions, 227 chunks",
+           font=f_w, fill=(70, 76, 85))
+
+    px = 448
+    d.line([S(px - 22), S(96), S(px - 22), S(286)], fill=EDGE, width=S(1))
+    val = 156.8 * ease(t / 0.8)
+    d.text((S(px), S(104)), f"{val:.0f}", font=f_big, fill=BONE)
+    d.text((S(px + 78), S(126)), "req/s", font=f_w, fill=ASH)
+    d.text((S(px + 2), S(152)), "chat throughput", font=f_w, fill=ASH)
+    if t > 0.5:
+        d.text((S(px + 2), S(168)), "was 20.6 before backpressure", font=f_w, fill=BLOOD)
+    d.line([S(px), S(188), S(px + 150), S(188)], fill=EDGE, width=S(1))
+    if t > 0.7:
+        for k, line in enumerate(["p95          460 ms",
+                                  "594 tests, 97% cov",
+                                  "0 failures in 2,100",
+                                  "reqs, provider killed"]):
+            d.text((S(px), S(200 + k * 17)), line, font=f_w,
+                   fill=SMOKE if k < 2 else ASH)
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# 13 · vision-rl-navigation — where the learned policy loses
+# ═════════════════════════════════════════════════════════════════════════
+NAV = [("nominal", 1.000, 0.937, True), ("sparse", 1.000, 0.980, False),
+       ("large", 1.000, 0.970, False), ("dense", 0.890, 0.730, True),
+       ("narrow", 0.850, 0.682, True), ("dynamic", 0.880, 0.860, False),
+       ("dyn_dense", 0.820, 0.710, True)]
+
+
+def scene_nav(d, t, raw):
+    f_w = font(F_MONO, 8)
+    f_big = font(F_UI, 40)
+    f_h = font(F_MONO_B, 10)
+
+    left, right = 44, 404
+    base, top = 250, 112
+    slot = (right - left) / len(NAV)
+    for i, (name, cls, learned, sig) in enumerate(NAV):
+        p = stagger(t, i, len(NAV), 0.6)
+        x0 = left + slot * i + slot * 0.14
+        bw = slot * 0.33
+        for bi, (val, col) in enumerate(((cls, (96, 104, 116)),
+                                         (learned, BLOOD))):
+            h = ((val - 0.6) / 0.42) * (base - top) * p
+            bx = x0 + bi * bw
+            d.rectangle([S(bx), S(base - h), S(bx + bw - 2), S(base)], fill=col)
+        lw = d.textlength(name, font=f_w)
+        d.text((S(x0 + bw) - lw / 2, S(base + 8)), name, font=f_w, fill=ASH)
+        if sig and p > 0.7:
+            d.ellipse([S(x0 + bw - 2), S(top - 14), S(x0 + bw + 2), S(top - 10)],
+                      fill=BLOOD)
+    d.line([S(left), S(base), S(right), S(base)], fill=EDGE, width=S(1))
+    d.text((S(left), S(base + 24)), "success rate · 100 held-out worlds · 6 seeds",
+           font=f_w, fill=(70, 76, 85))
+    d.rectangle([S(left), S(top - 34), S(left + 10), S(top - 28)], fill=(96, 104, 116))
+    d.text((S(left + 16), S(top - 37)), "classical", font=f_w, fill=SMOKE)
+    d.rectangle([S(left + 76), S(top - 34), S(left + 86), S(top - 28)], fill=BLOOD)
+    d.text((S(left + 92), S(top - 37)), "learned", font=f_w, fill=SMOKE)
+    d.text((S(left + 156), S(top - 37)), "• significant", font=f_w, fill=BLOOD)
+
+    px = 440
+    d.line([S(px - 22), S(96), S(px - 22), S(286)], fill=EDGE, width=S(1))
+    d.text((S(px), S(104)), "0 of 7", font=f_big, fill=BONE)
+    d.text((S(px + 2), S(150)), "conditions where the", font=f_w, fill=ASH)
+    d.text((S(px + 2), S(164)), "learned policy wins", font=f_w, fill=ASH)
+    d.line([S(px), S(184), S(px + 154), S(184)], fill=EDGE, width=S(1))
+    if t > 0.6:
+        for k, line in enumerate(["worst gap  narrow",
+                                  "           -0.168",
+                                  "61 experiments",
+                                  "exact permutation tests"]):
+            d.text((S(px), S(196 + k * 17)), line, font=f_w,
+                   fill=BLOOD if k == 1 else (SMOKE if k > 1 else ASH))
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# 14 · emotionedge-cpp — CPU to GPU, per stage
+# ═════════════════════════════════════════════════════════════════════════
+EDGE_STAGES = [("emotion fusion", 227, 47), ("ASR decode", 248, 32),
+               ("translation", 266, 57), ("TTS first chunk", 340, 54)]
+
+
+def scene_edge(d, t, raw):
+    f_w = font(F_MONO, 9)
+    f_big = font(F_UI, 40)
+    f_h = font(F_MONO_B, 10)
+
+    left, right = 166, 392
+    y = 116
+    scale = (right - left) / 360.0
+    for i, (name, cpu, gpu) in enumerate(EDGE_STAGES):
+        p = stagger(t, i, len(EDGE_STAGES), 0.6)
+        tw = tracked_w(d, name, f_w, 0.8)
+        tracked(d, (S(left - 12) - tw, S(y + 4)), name, f_w, SMOKE, 0.8)
+        d.rectangle([S(left), S(y), S(left + cpu * scale), S(y + 8)],
+                    fill=(62, 68, 78))
+        gw = gpu * scale * p
+        d.rectangle([S(left), S(y + 10), S(left + gw), S(y + 18)], fill=BLOOD)
+        if p > 0.6:
+            d.text((S(left + cpu * scale + 6), S(y - 2)), f"{cpu}", font=f_w,
+                   fill=ASH)
+            d.text((S(left + gw + 6), S(y + 8)), f"{gpu} ms", font=f_w, fill=BONE)
+        y += 34
+    d.text((S(left), S(y + 2)), "p50 per stage · grey CPU · red GPU",
+           font=f_w, fill=(70, 76, 85))
+
+    px = 440
+    d.line([S(px - 22), S(96), S(px - 22), S(286)], fill=EDGE, width=S(1))
+    val = 1262 + (365 - 1262) * ease(t / 0.8)
+    d.text((S(px), S(104)), f"{val:.0f}", font=f_big, fill=BONE)
+    d.text((S(px + 86), S(126)), "ms", font=f_w, fill=ASH)
+    d.text((S(px + 2), S(150)), "end-to-end p50", font=f_w, fill=ASH)
+    if t > 0.5:
+        d.text((S(px + 2), S(166)), "was 1262 on CPU", font=f_w, fill=BLOOD)
+    d.line([S(px), S(186), S(px + 154), S(186)], fill=EDGE, width=S(1))
+    if t > 0.7:
+        for k, line in enumerate(["p95 631  (budget 800)",
+                                  "5 s CPU time, was 51 s",
+                                  "RAVDESS WER   0.042",
+                                  "C++20, ONNX Runtime"]):
+            d.text((S(px), S(198 + k * 17)), line, font=f_w,
+                   fill=SMOKE if k < 2 else ASH)
+
+
+# ═════════════════════════════════════════════════════════════════════════
+# 15 · neuro-sathi — built, but deliberately not validated
+# ═════════════════════════════════════════════════════════════════════════
+LANGS = [("Hindi", True), ("Assamese", False), ("Bengali", False),
+         ("Nepali", False), ("Manipuri", False), ("Bodo", False)]
+
+
+def scene_sathi(d, t, raw):
+    f_w = font(F_MONO, 9)
+    f_big = font(F_UI, 40)
+    f_h = font(F_MONO_B, 10)
+
+    tracked(d, (S(44), S(104)), "LANGUAGE PACKS", f_h, SMOKE, 1.5)
+    y = 126
+    for i, (name, ok) in enumerate(LANGS):
+        p = stagger(t, i, len(LANGS), 0.6)
+        if p <= 0:
+            y += 22
+            continue
+        col = BONE if ok else (70, 76, 85)
+        d.rectangle([S(44), S(y), S(50), S(y + 10)],
+                    fill=BONE if ok else (44, 48, 56))
+        d.text((S(60), S(y - 1)), name, font=f_w, fill=col)
+        d.text((S(150), S(y - 1)),
+               "reviewed" if ok else "hidden until reviewed", font=f_w,
+               fill=SMOKE if ok else (70, 76, 85))
+        y += 19
+
+    d.line([S(44), S(y + 8), S(380), S(y + 8)], fill=EDGE, width=S(1))
+    if t > 0.6:
+        tracked(d, (S(44), S(y + 20)), "DEVIATION ALERTS", f_h, SMOKE, 1.5)
+        d.text((S(44), S(y + 40)), "last 7 days vs previous 28, beyond 2 SD",
+               font=f_w, fill=ASH)
+        d.text((S(44), S(y + 56)), "rules only — no trained model yet",
+               font=f_w, fill=BLOOD)
+
+    px = 440
+    d.line([S(px - 22), S(96), S(px - 22), S(286)], fill=EDGE, width=S(1))
+    d.text((S(px), S(104)), "1 of 6", font=f_big, fill=BONE)
+    d.text((S(px + 2), S(150)), "packs native-reviewed", font=f_w, fill=ASH)
+    d.line([S(px), S(170), S(px + 154), S(170)], fill=EDGE, width=S(1))
+    if t > 0.6:
+        for k, line in enumerate(["FastAPI · Flutter · Next",
+                                  "Postgres RLS · SQLCipher",
+                                  "offline-first, syncs on",
+                                  "reconnect"]):
+            d.text((S(px), S(182 + k * 17)), line, font=f_w,
+                   fill=SMOKE if k < 2 else ASH)
+    if t > 0.8:
+        tracked(d, (S(px), S(256)), "DOES NOT DIAGNOSE", f_h, BLOOD, 1.2)
+
+
 CARDS = [
-    ("gst-eval-harness", scene_gst_eval, "01", "gst-eval-harness",
-     "slab accuracy across 5 identical runs · same prompt, same model"),
-    ("gst-resilient-agent", scene_agent, "02", "gst-resilient-agent",
-     "retrieval recall@k over 28 gazette-derived golden rows"),
-    ("register-aware-translation", scene_register, "03", "register-aware-translation",
-     "formality is a dial, not a coin flip · 20 languages, 1,369 rules, ~1ms"),
+    # Starred repos only, strongest measured work first, in-progress last.
+    ("llm-gateway-rag", scene_gateway, "01", "llm-gateway-rag",
+     "one 12-vCPU laptop shared by every component"),
+    ("vision-rl-navigation", scene_nav, "02", "vision-rl-navigation",
+     "a strong classical planner is a hard baseline to beat"),
+    ("emotionedge-cpp", scene_edge, "03", "emotionedge-cpp",
+     "RTX 5070 Ti laptop · jfk.wav · C++20, no Python at runtime"),
     ("symmetrynet-equivariant-gnn", scene_symmetry, "04", "symmetrynet-equivariant-gnn",
      "rotate the molecule — the prediction does not move"),
-    ("chest-xray-classifier", scene_xray, "05", "chest-xray-classifier",
+    ("gst-resilient-agent", scene_agent, "05", "gst-resilient-agent",
+     "retrieval recall@k over 28 gazette-derived golden rows"),
+    ("register-aware-translation", scene_register, "06", "register-aware-translation",
+     "formality is a dial, not a coin flip · 20 languages, 1,369 rules, ~1ms"),
+    ("chest-xray-classifier", scene_xray, "07", "chest-xray-classifier",
      "3,175 test images · research prototype, not a medical device"),
-    ("smart-healthcare-triage", scene_triage, "06", "smart-healthcare-triage",
+    ("smart-healthcare-triage", scene_triage, "08", "smart-healthcare-triage",
      "symptom text → urgency, offline · follow-ups can escalate"),
-    ("llm-serving-unit-economics", scene_serving, "07", "llm-serving-unit-economics",
+    ("neuro-sathi", scene_sathi, "09", "neuro-sathi",
+     "built and unvalidated — clinical studies still required"),
+    ("llm-serving-unit-economics", scene_serving, "10", "llm-serving-unit-economics",
      "every number in this repo is absent rather than estimated"),
-    ("predicting-customer-churn", scene_churn, "08", "predicting_customer_churn",
-     "rebuilt on the real 7,032-row Telco set · held-out 20%"),
-    ("house-price-prediction", scene_house, "09", "House_price_prediction",
-     "cleaning fixed the metric · location fixed the model"),
-    ("sonar-rock-vs-mine", scene_sonar, "10", "sonar_rock-vs-mine-prediction",
-     "the same model, the same data — only the seed changed"),
-    ("chatbot-sentiment", scene_sentiment, "11", "Chatbot_customer_satisfaction",
-     "2,000 labelled reviews · 5-fold CV · baseline 50%"),
 ]
 
 if __name__ == "__main__":

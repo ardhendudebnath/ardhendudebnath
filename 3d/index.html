@@ -545,10 +545,6 @@ footer a:hover{color:var(--blood);border-color:var(--blood)}
     </div>
     <div class="projects" id="projects"></div>
 
-    <div class="earlier rise">
-      <p class="kicker" style="margin-bottom:16px">earlier work</p>
-      <ul id="earlier-list"></ul>
-    </div>
   </div>
 </section>
 
@@ -1060,15 +1056,53 @@ async function initCards() {
 const REPO = 'https://github.com/ardhendudebnath/';
 const PROJECTS = [
   {
-    name: 'gst-eval-harness', tag: 'GST · evaluation',
-    alt: 'Slab accuracy across five identical runs: 53.6, 50.0, 53.6, 50.0, 64.3',
-    desc: `An open, hand-labelled benchmark for Indian GST rate-slab classification.
-           India's slabs changed on 22 Sep 2025 and the 12% slab was abolished — this
-           measures how often LLMs still answer from the old table.`,
-    find: `Run the same prompt against the same model five times and slab accuracy
-           swings from 50.0% to 64.3%. Self-agreement is 53.6%. An abolished slab is
-           recited somewhere in the response 11.4% of the time.`,
-    tech: ['Python 3.11', 'pypdf', 'NVIDIA NIM', 'Docker', 'GitHub Actions'],
+    name: 'llm-gateway-rag', tag: 'Serving · RAG',
+    alt: 'Hybrid retrieval lifts recall@5 from 0.873 to 1.000, and identifier-only queries from 0.722 to 1.000',
+    desc: `A self-hosted LLM gateway and RAG backend. One OpenAI-compatible API in
+           front of several providers, with automatic fallback, circuit breakers and a
+           tenant-isolated semantic cache. No LangChain, no LlamaIndex.`,
+    find: `Hybrid retrieval takes recall@5 from 0.873 to 1.000, and identifier-only
+           queries from 0.722 to 1.000, in 14.7 ms. Backpressure took chat throughput
+           from 20.6 to 156.8 req/s — before it, unbounded inference OOM-killed the API
+           at 50 users. Killing the primary provider mid-traffic gave 0 user-visible
+           failures across 2,100 requests. The RAG p95 target of 1 s was not met.`,
+    tech: ['Python', 'FastAPI', 'Qdrant', 'Redis', 'Celery', 'Kubernetes', 'ONNX Runtime'],
+  },
+  {
+    name: 'vision-rl-navigation', tag: 'Robotics · RL',
+    alt: 'Success rate by condition — the classical planner leads the learned policy in all seven',
+    desc: `Vision-conditioned reinforcement learning for mobile robot navigation,
+           measured against a classical planner rather than against nothing.
+           Pre-registered endpoints, exact permutation tests, six seeds per arm.`,
+    find: `Across seven conditions the learned policy beats the classical planner in
+           none of them — closest on dynamic (−0.020, not significant), worst on narrow
+           (−0.168). The reward asymmetry mattered more than the architecture:
+           collisions fell from 27 to 2 per 100 episodes, and 21 of 25 recovered
+           episodes simply became timeouts.`,
+    tech: ['PPO', 'ROS 2 Jazzy', 'Nav2', 'Gymnasium', 'Hydra', 'NumPy'],
+  },
+  {
+    name: 'emotionedge-cpp', tag: 'Edge · C++',
+    alt: 'Per-stage latency, CPU against GPU — end-to-end falls from 1262 ms to 365 ms',
+    desc: `Real-time speech translation that keeps the speaker's emotion. ASR, emotion
+           detection, emotion-aware translation and expressive TTS in one C++20 process
+           with no Python at runtime, on ONNX Runtime.`,
+    find: `Moving to GPU collapsed end-to-end p50 from 1262 ms to 365 ms, p95 to 631 ms
+           against an 800 ms budget, using 5 s of CPU time instead of 51 s — with
+           quality held. Echo cancellation was built, measured and not adopted: AEC3
+           removed 8.6–14.7 dB but fragmented the transcript.`,
+    tech: ['C++20', 'ONNX Runtime', 'CUDA', 'whisper.cpp', 'NLLB-200', 'CMake'],
+  },
+  {
+    name: 'symmetrynet-equivariant-gnn', tag: 'Research · GNN',
+    alt: 'A molecule rotating while the predicted HOMO-LUMO gap stays at 43.43 meV',
+    desc: `Predicting molecular properties with neural networks that are provably
+           invariant to rotation — representation theory implemented from scratch
+           rather than bolted on with data augmentation.`,
+    find: `Equivariance verified to 1.3 × 10⁻¹⁵ relative error against 1.2 × 10⁻² for a
+           naive GNN. On QM9, equivariant PaiNN hits 43.43 meV test MAE versus 56.03,
+           and its advantage widens with data — 1.16× at 11k molecules, 1.29× at 110k.`,
+    tech: ['PyTorch', 'PyTorch Geometric', 'e3nn', 'CUDA'],
   },
   {
     name: 'gst-resilient-agent', tag: 'GST · agents',
@@ -1093,17 +1127,6 @@ const PROJECTS = [
     tech: ['PyTorch', 'Whisper', 'Transformers', 'Flask', 'Socket.IO', 'SQLite'],
   },
   {
-    name: 'symmetrynet-equivariant-gnn', tag: 'Research · GNN',
-    alt: 'A molecule rotating while the predicted HOMO-LUMO gap stays at 43.43 meV',
-    desc: `Predicting molecular properties with neural networks that are provably
-           invariant to rotation — representation theory implemented from scratch
-           rather than bolted on with data augmentation.`,
-    find: `Equivariance verified to 1.3 × 10⁻¹⁵ relative error against 1.2 × 10⁻² for a
-           naive GNN. On QM9, equivariant PaiNN hits 43.43 meV test MAE versus 56.03,
-           and its advantage widens with data — 1.16× at 11k molecules, 1.29× at 110k.`,
-    tech: ['PyTorch', 'PyTorch Geometric', 'e3nn', 'CUDA'],
-  },
-  {
     name: 'chest-xray-classifier', tag: 'Vision · explainability',
     alt: 'Per-class F1 — COVID19 0.982, PNEUMONIA 0.970, NORMAL 0.953, LUNG_OPACITY 0.929',
     desc: `Four-class CNN over chest radiographs, with Grad-CAM, SHAP and a Mahalanobis
@@ -1117,91 +1140,40 @@ const PROJECTS = [
   {
     name: 'smart-healthcare-triage', tag: 'NLP · offline',
     alt: 'An urgency ladder escalating from SELF_CARE through URGENT_CARE to EMERGENCY',
-    desc: `Symptom-based triage assistant. Describe symptoms in English, Hindi or Bengali;
-           get an urgency class, a helpline and a specialist suggestion. Works offline and
-           audits every decision.`,
+    desc: `Symptom-based triage assistant. Describe symptoms in English, Hindi or
+           Bengali; get an urgency class, a helpline and a specialist suggestion. Works
+           offline and audits every decision.`,
     find: `Follow-up questions can escalate a case — triage is not a single-shot
            classification. 79 symptoms, 487 phrases across three languages, 122 tests
            covering the safety overrides.`,
     tech: ['Python 3.11', 'FastAPI', 'spaCy', 'SQLite', 'Gemini API', 'PWA'],
   },
   {
+    name: 'neuro-sathi', tag: 'Health · built, unvalidated',
+    findLabel: 'Status.',
+    alt: 'Six language packs, one native-reviewed and five hidden until review',
+    desc: `An offline-first multilingual companion for elderly cognitive care in
+           North-East India — memory games, a voice companion, reminders, and a
+           caregiver dashboard with baseline-deviation alerts.`,
+    find: `Built, and deliberately not claimed as validated. It does not diagnose. Five
+           of six language packs stay hidden until a native speaker reviews them, and
+           the deviation alerts are still rules rather than the trained models planned.
+           Clinical validation and usability studies remain outstanding.`,
+    tech: ['FastAPI', 'Flutter', 'Next.js', 'Postgres RLS', 'Redis', 'Docker'],
+  },
+  {
     name: 'llm-serving-unit-economics', tag: 'Serving · in progress',
     findLabel: 'Status.',
     alt: 'A 3D measurement space — cost, quality and latency axes around three empty workload slots',
     desc: `Serving an open-weight LLM on vLLM and Kubernetes, benchmarked against a paid
-           API on the same GST classification task as 01. Three dimensions — latency,
-           quality, cost — pointed at one question: above what request volume does
-           self-hosting actually win?`,
+           API. Three dimensions — latency, quality, cost — pointed at one question:
+           above what request volume does self-hosting actually win?`,
     find: `Week 1 of 6 — build complete, nothing measured yet. The diagram is the
            measurement design, not results: the repo's rule is that every number in it
-           is absent rather than estimated. Defined so far — three workload profiles,
-           606 / 7,177 / 446 char prompts against 48 / 48 / 768 token caps, on an
+           is absent rather than estimated. Three workload profiles are defined, on an
            RTX 5070 Ti with 12,227 MiB.`,
     tech: ['vLLM', 'Kubernetes', 'Prometheus', 'Grafana', 'Podman', 'pytest'],
   },
-  {
-    name: 'predicting_customer_churn', tag: 'Rebuilt · 2024',
-    repo: 'predicting_customer_churn_for_a_telecommunications_company',
-    card: 'predicting-customer-churn',
-    alt: 'Two measured operating points — threshold 0.50 catches 214 of 374 churners, 0.30 catches 292',
-    desc: `The notebook used to define five customers inline, split them 70/30, and
-           report metrics on the resulting two test rows. It now loads the IBM Telco
-           Customer Churn set it always claimed to use — 7,032 rows at 26.6% churn.`,
-    find: `ROC AUC 0.8401 on a held-out 20%, against 0.5 — chance — before. The
-           threshold matters more than the model: at 0.50 it catches 214 of 374
-           churners at 0.64 precision, at 0.30 it catches 292 at 0.54. A false
-           positive costs one discount; a false negative costs the customer.`,
-    tech: ['NumPy', 'logistic regression', 'no pandas, no sklearn'],
-  },
-  {
-    name: 'House_price_prediction', tag: 'Rebuilt · 2024',
-    card: 'house-price-prediction',
-    alt: 'R² across three measured variants — 0.4263, 0.5105, then 0.7086 once city is added',
-    desc: `The notebook used to fit raw prices with no cleaning and report an RMSE
-           near $995,000 — larger than most of the houses in the data. That error was
-           describing a single $26.6M sale.`,
-    find: `Cleaning fixed the metric but not the model — dropping the zero-price rows
-           and the top 1% leaves R² at 0.4263. Location is what moved it: 44 city
-           indicators take R² to 0.7086 and cut median error from 22.4% to 13.2%.`,
-    tech: ['NumPy', 'least squares', 'no pandas, no sklearn'],
-  },
-  {
-    name: 'sonar_rock-vs-mine-prediction', tag: 'Rebuilt · 2024',
-    repo: 'sonar_rock-vs-mine-prediction-',
-    card: 'sonar-rock-vs-mine',
-    alt: '200 single-split accuracies spread from 48% to 95%, with the cross-validated interval a narrow band at 76%',
-    desc: `Logistic regression over UCI sonar returns — 208 samples, 60 frequency
-           bands, 111 mines and 97 rocks. The script could not run from a checkout:
-           it read a Colab path, so the CSV beside it in the repo was never used.`,
-    find: `It reported one accuracy from a 90/10 split, and on 208 samples that test
-           set is 21 rows — one sample is worth 4.8 points. Re-run the identical
-           split under 200 seeds and accuracy lands anywhere from 47.6% to 95.2%.
-           Cross-validation puts it at 76.3% ± 5.4% over 50 fits, against a 53.4%
-           baseline.`,
-    tech: ['NumPy', 'repeated stratified k-fold', 'no pandas, no sklearn'],
-  },
-  {
-    name: 'Chatbot_customer_satisfaction', tag: 'Rebuilt · 2024',
-    repo: 'Chatbot_customer_satisfaction-project',
-    card: 'chatbot-sentiment',
-    alt: 'The sentiment lexicon the model learned — bad, worst, boring, plot and script against great, hilarious, perfect and excellent',
-    desc: `Sentiment analysis over 2,000 labelled reviews — TF-IDF across 6,000 terms,
-           logistic regression, stratified 5-fold CV. The repo's own dataset.csv is a
-           marketing table with no free text in it, so the old notebook was tokenising
-           column headers, tabs and digits.`,
-    find: `Accuracy 86.3% ± 1.1%, ROC AUC 0.939, against a 50% baseline. No sentiment
-           word list was supplied, yet bad (−3.65) and worst (−2.61) fall out on one
-           side and great (+2.04) on the other — and two of the strongest negative
-           terms are plot (−2.05) and script (−1.87), which are not sentiment words
-           at all. It learned a discourse pattern, not a dictionary.`,
-    tech: ['NumPy', 'TF-IDF', 'no pandas, no sklearn'],
-  },
-];
-
-const EARLIER = [
-  ['Cognifyz-Internship-Project', 'Machine learning and data analysis internship work', '2025'],
-  ['Image_Classification_Project-', 'Image classification practice', '2025'],
 ];
 
 function initBuilt() {
@@ -1224,12 +1196,6 @@ function initBuilt() {
     </article>`;
   }).join('');
 
-  document.getElementById('earlier-list').innerHTML = EARLIER.map(([n, d, y]) => `
-    <li>
-      <a href="${REPO}${n}">${n}</a>
-      <span>${d}</span>
-      <em>${y}</em>
-    </li>`).join('');
 }
 
 // ── Arsenal tiles ────────────────────────────────────────────
