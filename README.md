@@ -17,7 +17,7 @@
 
 B.Tech, India. I build machine learning systems and the unglamorous plumbing underneath them — benchmarks, evaluation harnesses, and agents that have to keep working when the inputs get messy.
 
-Most of the current work sits in **one vertical: Indian GST**. Three repos that feed each other beat three unrelated demos, so the harness that scores the benchmark is the same harness that scores the agent.
+Three of these run as one connected thread in a single vertical — Indian GST. A hand-labelled benchmark, an agent audited against it, and the serving economics of running the thing. Repos that feed each other beat unrelated demos.
 
 > Every number below is measured and reported in that project's own README. Nothing here is illustrative.
 
@@ -102,7 +102,25 @@ Predicting molecular properties with neural networks that are *provably* invaria
 
 ---
 
-## `05` · gst-resilient-agent
+## `05` · gst-eval-harness
+
+![Slab accuracy across five identical runs: 53.6, 50.0, 53.6, 50.0, 64.3](3d/assets/cards/gst-eval-harness.webp)
+
+An open, hand-labelled benchmark for Indian GST rate-slab classification. India's slabs changed on 22 Sep 2025 and the 12% slab was abolished — this measures how often LLMs still answer from the old table. It is also the scorer for `06`, so "did my fix help" is a number rather than an opinion.
+
+**The finding:** run the *same* prompt against the *same* model five times and slab accuracy swings from 50.0% to 64.3%. Self-agreement is 53.6% — the model reproduces its own answer on only 15 of 28 rows. An abolished slab is recited somewhere in the response 11.4% of the time.
+
+![Python](https://img.shields.io/badge/Python_3.11-16191e?style=flat-square&logo=python&logoColor=eae7e0)
+![pypdf](https://img.shields.io/badge/pypdf-16191e?style=flat-square)
+![NVIDIA NIM](https://img.shields.io/badge/NVIDIA_NIM-16191e?style=flat-square&logo=nvidia&logoColor=eae7e0)
+![Docker](https://img.shields.io/badge/Docker-16191e?style=flat-square&logo=docker&logoColor=eae7e0)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-16191e?style=flat-square&logo=githubactions&logoColor=eae7e0)
+
+**[→ gst-eval-harness](https://github.com/ardhendudebnath/gst-eval-harness)**
+
+---
+
+## `06` · gst-resilient-agent
 
 ![Retrieval recall at k — semantic reaches 89.3% at k=10, hybrid 82.1%, keyword 60.7%](3d/assets/cards/gst-resilient-agent.webp)
 
@@ -120,7 +138,7 @@ A multi-step agent that audits Indian GST invoice lines against hash-pinned Gaze
 
 ---
 
-## `06` · register-aware-translation
+## `07` · register-aware-translation
 
 ![A formality dial sweeping between তুই, তুমি and আপনি](3d/assets/cards/register-aware-translation.webp)
 
@@ -138,7 +156,7 @@ Speech translation that gets the *register* right — তুই or আপনি,
 
 ---
 
-## `07` · chest-xray-classifier
+## `08` · chest-xray-classifier
 
 ![Per-class F1 — COVID19 0.982, PNEUMONIA 0.970, NORMAL 0.953, LUNG_OPACITY 0.929](3d/assets/cards/chest-xray-classifier.webp)
 
@@ -156,7 +174,7 @@ Four-class CNN over chest radiographs — NORMAL, PNEUMONIA, COVID19, LUNG_OPACI
 
 ---
 
-## `08` · smart-healthcare-triage
+## `09` · smart-healthcare-triage
 
 ![An urgency ladder escalating from SELF_CARE through URGENT_CARE to EMERGENCY](3d/assets/cards/smart-healthcare-triage.webp)
 
@@ -174,7 +192,7 @@ Symptom-based triage assistant. Describe symptoms in English, Hindi or Bengali; 
 
 ---
 
-## `09` · neuro-sathi
+## `10` · neuro-sathi
 
 ![Six language packs, one native-reviewed and five hidden until review; deviation alerts are rules-only](3d/assets/cards/neuro-sathi.webp)
 
@@ -193,7 +211,7 @@ An offline-first multilingual companion for elderly cognitive care in North-East
 
 ---
 
-## `10` · llm-serving-unit-economics
+## `11` · llm-serving-unit-economics
 
 ![A 3D measurement space — cost, quality and latency axes around three empty workload slots](3d/assets/cards/llm-serving-unit-economics.webp)
 

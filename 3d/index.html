@@ -1105,6 +1105,19 @@ const PROJECTS = [
     tech: ['PyTorch', 'PyTorch Geometric', 'e3nn', 'CUDA'],
   },
   {
+    name: 'gst-eval-harness', tag: 'GST · evaluation',
+    alt: 'Slab accuracy across five identical runs: 53.6, 50.0, 53.6, 50.0, 64.3',
+    desc: `An open, hand-labelled benchmark for Indian GST rate-slab classification.
+           India's slabs changed on 22 Sep 2025 and the 12% slab was abolished — this
+           measures how often LLMs still answer from the old table. It is also the
+           scorer for the agent below.`,
+    find: `Run the same prompt against the same model five times and slab accuracy
+           swings from 50.0% to 64.3%. Self-agreement is 53.6% — the model reproduces
+           its own answer on only 15 of 28 rows. An abolished slab is recited somewhere
+           in the response 11.4% of the time.`,
+    tech: ['Python 3.11', 'pypdf', 'NVIDIA NIM', 'Docker', 'GitHub Actions'],
+  },
+  {
     name: 'gst-resilient-agent', tag: 'GST · agents',
     alt: 'Retrieval recall at k — semantic reaches 89.3% at k=10, keyword 60.7%',
     desc: `A multi-step agent that audits GST invoice lines against hash-pinned Gazette
