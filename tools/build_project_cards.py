@@ -810,6 +810,70 @@ def scene_sonar(d, t, raw):
                    fill=SMOKE if k == 0 else ASH)
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# 11 · Chatbot_customer_satisfaction — the lexicon the model learned
+#
+# No sentiment word list was supplied anywhere. These weights come only from
+# the labels, which is why `plot` and `script` land among the most negative
+# terms: people reach for those nouns to explain why a film failed.
+# ═════════════════════════════════════════════════════════════════════════
+LEXICON = [("bad", -3.646), ("worst", -2.608), ("boring", -2.224),
+           ("plot", -2.051), ("stupid", -1.874), ("script", -1.873),
+           ("waste", -1.762), ("best", 1.398), ("excellent", 1.531),
+           ("perfect", 1.566), ("hilarious", 1.570), ("great", 2.039)]
+
+
+def scene_sentiment(d, t, raw):
+    f_w = font(F_MONO, 9)
+    f_big = font(F_UI, 42)
+    f_h = font(F_MONO_B, 10)
+
+    cx, scale = 238, 40.0
+    y = 106
+    step = 15
+
+    d.line([S(cx), S(y - 6), S(cx), S(y + step * len(LEXICON) - 4)],
+           fill=EDGE, width=S(1))
+
+    for i, (word, wt) in enumerate(LEXICON):
+        p = stagger(t, i, len(LEXICON), 0.6)
+        if p <= 0:
+            y += step
+            continue
+        length = abs(wt) * scale * p
+        neg = wt < 0
+        x0, x1 = (cx - length, cx) if neg else (cx, cx + length)
+        d.rectangle([S(x0), S(y), S(x1), S(y + 9)],
+                    fill=BLOOD if neg else (150, 157, 168))
+        if p > 0.6:
+            lab = f"{word} {wt:+.2f}"
+            lw = d.textlength(lab, font=f_w)
+            if neg:
+                d.text((S(x0) - lw - S(7), S(y - 1)), lab, font=f_w, fill=SMOKE)
+            else:
+                d.text((S(x1) + S(7), S(y - 1)), lab, font=f_w, fill=SMOKE)
+        y += step
+
+    d.text((S(cx - 92), S(y + 6)), "learned from labels alone — no word list given",
+           font=f_w, fill=(70, 76, 85))
+
+    px = 436
+    d.line([S(px - 20), S(96), S(px - 20), S(286)], fill=EDGE, width=S(1))
+    val = 86.3 * ease(t / 0.8)
+    d.text((S(px), S(104)), f"{val:.1f}%", font=f_big, fill=BONE)
+    d.text((S(px + 2), S(152)), "± 1.1   5-fold CV", font=f_w, fill=ASH)
+    if t > 0.5:
+        tracked(d, (S(px), S(176)), "ROC AUC 0.939", f_h, BLOOD, 1.2)
+    d.line([S(px), S(198), S(px + 150), S(198)], fill=EDGE, width=S(1))
+    if t > 0.7:
+        for k, line in enumerate(["2,000 reviews, balanced",
+                                  "baseline       50.0%",
+                                  "6,000 tf-idf terms",
+                                  "F1             0.863"]):
+            d.text((S(px), S(210 + k * 17)), line, font=f_w,
+                   fill=SMOKE if k == 0 else ASH)
+
+
 CARDS = [
     ("gst-eval-harness", scene_gst_eval, "01", "gst-eval-harness",
      "slab accuracy across 5 identical runs · same prompt, same model"),
@@ -831,6 +895,8 @@ CARDS = [
      "cleaning fixed the metric · location fixed the model"),
     ("sonar-rock-vs-mine", scene_sonar, "10", "sonar_rock-vs-mine-prediction",
      "the same model, the same data — only the seed changed"),
+    ("chatbot-sentiment", scene_sentiment, "11", "Chatbot_customer_satisfaction",
+     "2,000 labelled reviews · 5-fold CV · baseline 50%"),
 ]
 
 if __name__ == "__main__":

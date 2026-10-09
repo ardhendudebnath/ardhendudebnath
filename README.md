@@ -233,13 +233,40 @@ no more honest than reporting 48%. Repeated stratified 5-fold CV puts it at
 
 ---
 
+### `11` · Chatbot_customer_satisfaction
+
+![The sentiment lexicon the model learned — bad, worst, boring, plot and script on one side, great, hilarious, perfect and excellent on the other](3d/assets/cards/chatbot-sentiment.webp)
+
+Sentiment analysis over 2,000 labelled reviews — TF-IDF across 6,000 terms,
+logistic regression, stratified 5-fold cross-validation. The repo's own
+`dataset.csv` is the Kaggle *Customer Personality* marketing table, 2,240 rows
+of `Income` and `MntWines` and `AcceptedCmp1`, with **no free text in it at
+all** — so the old notebook was tokenising column headers, tabs and digits, and
+the word-frequency chart was counting them.
+
+**The finding:** accuracy **86.3% ± 1.1%**, ROC AUC **0.939**, against a 50%
+baseline on an exactly balanced corpus. More interesting is the lexicon, since
+no sentiment word list was supplied anywhere — `bad` (−3.65) and `worst`
+(−2.61) fall out on one side, `great` (+2.04) and `hilarious` (+1.57) on the
+other. But two of the strongest negative terms are not sentiment words:
+`plot` (−2.05) and `script` (−1.87). People reach for those nouns to explain
+why a film failed and almost never to praise one — the model learned a
+discourse pattern, not a dictionary.
+
+![NumPy](https://img.shields.io/badge/NumPy-16191e?style=flat-square&logo=numpy&logoColor=eae7e0)
+![TF-IDF](https://img.shields.io/badge/TF--IDF-16191e?style=flat-square)
+![from scratch](https://img.shields.io/badge/no_pandas,_no_sklearn-16191e?style=flat-square)
+
+**[→ Chatbot_customer_satisfaction-project](https://github.com/ardhendudebnath/Chatbot_customer_satisfaction-project)**
+
+---
+
 ## Earlier work
 
 As they stand — practice projects from 2024–25, not rebuilt.
 
 | Repo | What | Year |
 |---|---|---|
-| [Chatbot_customer_satisfaction-project](https://github.com/ardhendudebnath/Chatbot_customer_satisfaction-project) | Customer sentiment chatbot — NLP preprocessing, word-frequency and heatmap analysis | 2024 |
 | [Cognifyz-Internship-Project](https://github.com/ardhendudebnath/Cognifyz-Internship-Project) | Machine learning and data analysis internship work | 2025 |
 | [Image_Classification_Project-](https://github.com/ardhendudebnath/Image_Classification_Project-) | Image classification practice | 2025 |
 

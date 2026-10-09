@@ -1181,10 +1181,25 @@ const PROJECTS = [
            baseline.`,
     tech: ['NumPy', 'repeated stratified k-fold', 'no pandas, no sklearn'],
   },
+  {
+    name: 'Chatbot_customer_satisfaction', tag: 'Rebuilt · 2024',
+    repo: 'Chatbot_customer_satisfaction-project',
+    card: 'chatbot-sentiment',
+    alt: 'The sentiment lexicon the model learned — bad, worst, boring, plot and script against great, hilarious, perfect and excellent',
+    desc: `Sentiment analysis over 2,000 labelled reviews — TF-IDF across 6,000 terms,
+           logistic regression, stratified 5-fold CV. The repo's own dataset.csv is a
+           marketing table with no free text in it, so the old notebook was tokenising
+           column headers, tabs and digits.`,
+    find: `Accuracy 86.3% ± 1.1%, ROC AUC 0.939, against a 50% baseline. No sentiment
+           word list was supplied, yet bad (−3.65) and worst (−2.61) fall out on one
+           side and great (+2.04) on the other — and two of the strongest negative
+           terms are plot (−2.05) and script (−1.87), which are not sentiment words
+           at all. It learned a discourse pattern, not a dictionary.`,
+    tech: ['NumPy', 'TF-IDF', 'no pandas, no sklearn'],
+  },
 ];
 
 const EARLIER = [
-  ['Chatbot_customer_satisfaction-project', 'Customer sentiment chatbot — NLP preprocessing, word-frequency and heatmap analysis', '2024'],
   ['Cognifyz-Internship-Project', 'Machine learning and data analysis internship work', '2025'],
   ['Image_Classification_Project-', 'Image classification practice', '2025'],
 ];
